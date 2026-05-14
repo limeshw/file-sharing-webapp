@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "Linkify Backend",
+    "_postman_id": "7d2345d5-c40d-4b59-8b89-3f62a6ebf102",
+    "description": "Postman collection for the Linkify backend APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "uuid",
+      "value": ""
+    },
+    {
+      "key": "accessKey",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Upload File",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "myfile",
+              "type": "file",
+              "src": ""
+            },
+            {
+              "key": "expiry",
+              "value": "24h",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/files/upload",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "files",
+            "upload"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Verify Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uuid\": \"{{uuid}}\",\n  \"password\": \"secret123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/files/verify-password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "files",
+            "verify-password"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Share File by Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"uuid\": \"{{uuid}}\",\n  \"emailTo\": \"receiver@example.com\",\n  \"emailFrom\": \"sender@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/files/send",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "files",
+            "send"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Public File Page",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/files/{{uuid}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "files",
+            "{{uuid}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Download File",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/files/download/{{uuid}}?accessKey={{accessKey}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "files",
+            "download",
+            "{{uuid}}"
+          ],
+          "query": [
+            {
+              "key": "accessKey",
+              "value": "{{accessKey}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "File Metadata API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/files/meta/{{uuid}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "files",
+            "meta",
+            "{{uuid}}"
+          ]
+        }
+      }
+    }
+  ]
+}
