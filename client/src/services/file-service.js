@@ -35,12 +35,34 @@ export async function sendShareEmail(payload) {
   return response.data;
 }
 
+export async function downloadFileToDevice({ uuid, accessKey, filename }) {
+  const response = await fetch(buildDownloadPath(uuid, accessKey));
+
+  if (!response.ok) {
+    throw new Error("Unable to download file.");
+  }
+
+  const blob = await response.blob();
+  const objectUrl = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+
+  anchor.href = objectUrl;
+  anchor.download = filename || "download";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(objectUrl);
+}
+
 export function buildFrontendSharePath(uuid) {
   return `${window.location.origin}/files/${uuid}`;
 }
 
 export function buildDownloadPath(uuid, accessKey) {
-  const url = new URL(buildBackendUrl(`/files/download/${uuid}`));
+  // In dev mode, buildBackendUrl returns a relative path like "/files/download/uuid"
+  // because API_BASE_URL is "" (Vite proxy handles it). new URL() requires an absolute
+  // URL string, so we pass window.location.href as the base to resolve relative paths.
+  const url = new URL(buildBackendUrl(`/files/download/${uuid}`), window.location.href);
 
   if (accessKey) {
     url.searchParams.set("accessKey", accessKey);

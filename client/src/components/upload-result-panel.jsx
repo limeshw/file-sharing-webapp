@@ -1,55 +1,48 @@
-import { Copy, ExternalLink, QrCode, ShieldCheck, TimerReset } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Copy, ExternalLink, ShieldCheck, TimerReset } from "lucide-react";
 import { toast } from "sonner";
 import { buildFrontendSharePath } from "../services/file-service.js";
 import { formatBytes, formatExpiry } from "../lib/utils.js";
 import { useCopyToClipboard } from "../hooks/use-copy-to-clipboard.js";
-import { Badge } from "./ui/badge.jsx";
 import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card.jsx";
 import { Skeleton } from "./ui/skeleton.jsx";
+import { ShareEmailForm } from "./share-email-form.jsx";
 
 export function UploadResultPanel({ result }) {
   const { copy } = useCopyToClipboard();
 
-  async function handleCopy(value, message) {
+  async function handleCopy(value) {
     await copy(value);
-    toast.success(message);
+    toast.success("Share link copied.");
   }
 
   return (
     <Card className="rounded-[32px]">
       <CardHeader>
-        <CardTitle>Transfer outcome</CardTitle>
+        <CardTitle>{result ? "Your link is ready" : "Share link preview"}</CardTitle>
         <CardDescription>
-          The upload panel reflects the backend response envelope: `success`, `message`, and `data`.
+          {result
+            ? "Copy the link below and send it to your receiver."
+            : "Once the upload finishes, the share link will appear here."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!result ? (
           <div className="space-y-5">
-            <Skeleton className="h-48 rounded-[28px]" />
-            <Skeleton className="h-16 rounded-3xl" />
-            <Skeleton className="h-28 rounded-3xl" />
+            <Skeleton className="h-32 rounded-[24px]" />
+            <Skeleton className="h-16 rounded-[20px]" />
+            <Skeleton className="h-52 rounded-[24px]" />
           </div>
         ) : (
           <div className="space-y-5">
-            <div className="rounded-[30px] bg-gradient-to-br from-slate-950 via-blue-950 to-emerald-950 p-6 text-white">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <Badge className="mb-3 border-white/10 bg-white/10 text-white">
-                    Upload complete
-                  </Badge>
-                  <h3 className="text-2xl font-semibold">{result.originalName}</h3>
-                  <p className="mt-2 text-sm text-white/70">
-                    {formatBytes(result.size)} - {result.mimeType}
-                  </p>
-                </div>
-                <div className="rounded-3xl bg-white/10 p-3 backdrop-blur">
-                  <QrCode className="size-6" />
-                </div>
-              </div>
+            <div className="rounded-[28px] border border-border bg-card p-6">
+              <h3 className="text-2xl font-semibold">{result.originalName}</h3>
+              <p className="mt-2 text-sm text-muted">
+                {formatBytes(result.size)} • {result.mimeType}
+              </p>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <ResultStat
                   Icon={TimerReset}
                   label="Expires"
@@ -57,71 +50,35 @@ export function UploadResultPanel({ result }) {
                 />
                 <ResultStat
                   Icon={ShieldCheck}
-                  label="Protection"
-                  value={result.hasPassword ? "Password required" : "Open download"}
+                  label="Access"
+                  value={result.hasPassword ? "Password protected" : "Open with link"}
                 />
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-border bg-white/50 p-4 dark:bg-slate-950/25">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">Frontend share page</p>
-              <p className="mt-2 break-all text-sm">{buildFrontendSharePath(result.uuid)}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
+            <div className="rounded-[24px] border border-border bg-slate-50 p-4 dark:bg-slate-950">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">Share link</p>
+              <p className="mt-2 break-all text-sm leading-6">{buildFrontendSharePath(result.uuid)}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   variant="secondary"
                   size="sm"
                   type="button"
-                  onClick={() =>
-                    handleCopy(buildFrontendSharePath(result.uuid), "Frontend share link copied.")
-                  }
+                  onClick={() => handleCopy(buildFrontendSharePath(result.uuid))}
                 >
                   <Copy className="size-4" />
-                  Copy app link
+                  Copy link
                 </Button>
                 <Button asChild size="sm">
-                  <a href={`/files/${result.uuid}`}>
-                    Open page
+                  <Link to={`/files/${result.uuid}`}>
+                    Open link
                     <ExternalLink className="size-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </div>
 
-            <div className="rounded-[28px] border border-border bg-white/50 p-4 dark:bg-slate-950/25">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted">Backend response data</p>
-              <p className="mt-2 break-all text-sm">{result.shareUrl}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  type="button"
-                  onClick={() => handleCopy(result.shareUrl, "Backend share URL copied.")}
-                >
-                  <Copy className="size-4" />
-                  Copy backend URL
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  type="button"
-                  onClick={() => handleCopy(result.downloadUrl, "Backend download URL copied.")}
-                >
-                  <Copy className="size-4" />
-                  Copy download URL
-                </Button>
-              </div>
-            </div>
-
-            {result.qrCode ? (
-              <div className="glass-panel rounded-[28px] p-5">
-                <p className="mb-4 text-sm font-medium">QR code generated by the backend</p>
-                <img
-                  src={result.qrCode}
-                  alt={`QR code for ${result.originalName}`}
-                  className="mx-auto size-48 rounded-[28px] bg-white p-3"
-                />
-              </div>
-            ) : null}
+            <ShareEmailForm uuid={result.uuid} compact />
           </div>
         )}
       </CardContent>
@@ -131,12 +88,12 @@ export function UploadResultPanel({ result }) {
 
 function ResultStat({ Icon, label, value }) {
   return (
-    <div className="rounded-3xl bg-white/10 p-4">
-      <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-white/10">
+    <div className="rounded-2xl border border-border bg-slate-50 p-4 dark:bg-slate-950">
+      <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
         <Icon className="size-4" />
       </div>
-      <p className="text-xs uppercase tracking-[0.2em] text-white/50">{label}</p>
-      <p className="mt-1 text-sm font-medium text-white">{value}</p>
+      <p className="text-xs uppercase tracking-[0.18em] text-muted">{label}</p>
+      <p className="mt-1 text-sm font-medium">{value}</p>
     </div>
   );
 }

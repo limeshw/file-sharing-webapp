@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ArrowUpRight, CalendarClock, LockKeyhole, RefreshCw } from "lucide-react";
 import { fetchFileMeta } from "../services/file-service.js";
 import { Button } from "./ui/button.jsx";
@@ -64,9 +65,9 @@ export function DashboardGrid({ uploads }) {
                 <CardDescription>{item.uuid}</CardDescription>
               </div>
               <Button asChild size="icon" variant="secondary">
-                <a href={`/files/${item.uuid}`}>
+                <Link to={`/files/${item.uuid}`}>
                   <ArrowUpRight className="size-4" />
-                </a>
+                </Link>
               </Button>
             </div>
           </CardHeader>
@@ -102,7 +103,7 @@ export function DashboardGrid({ uploads }) {
 function PillRow({ Icon, label, value }) {
   return (
     <div className="flex items-center gap-3 rounded-[24px] border border-border bg-white/55 px-4 py-3 dark:bg-slate-950/25">
-      <div className="flex size-10 items-center justify-center rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900">
+      <div className="flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
         <Icon className="size-4" />
       </div>
       <div>

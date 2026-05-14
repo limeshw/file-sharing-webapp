@@ -12,7 +12,7 @@ export function DashboardPage() {
     return (
       <EmptyState
         title="No recent transfers yet"
-        description="This dashboard is backed by your browser’s recent upload history because the backend has no authenticated listing endpoint. Upload a file first, then come back here."
+        description="Your recent shared files will appear here after you create a link."
         actionLabel="Go to upload"
         actionHref="/"
       />
@@ -23,12 +23,12 @@ export function DashboardPage() {
     <div className="space-y-6">
       <Card className="rounded-[32px]">
         <CardHeader>
-          <div className="mb-3 flex size-12 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 via-cyan-400 to-emerald-400 text-white">
+          <div className="mb-3 flex size-12 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
             <DatabaseZap className="size-5" />
           </div>
           <CardTitle className="text-3xl">Recent transfers</CardTitle>
           <CardDescription>
-            Each card re-checks the real backend metadata endpoint so expired files, password flags, and download counts stay current.
+            Reopen your latest share links and check their current status.
           </CardDescription>
         </CardHeader>
       </Card>

@@ -8,12 +8,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-accent px-5 py-3 text-accent-foreground shadow-lg shadow-blue-500/20 hover:translate-y-[-1px] hover:shadow-xl",
+          "bg-accent px-5 py-3 text-accent-foreground shadow-sm hover:opacity-95",
         secondary:
-          "glass-panel px-5 py-3 text-foreground hover:bg-white/70 dark:hover:bg-white/8",
-        ghost: "px-4 py-2 text-muted hover:bg-white/50 dark:hover:bg-white/6",
+          "border border-border bg-card px-5 py-3 text-foreground hover:bg-slate-50 dark:hover:bg-slate-900",
+        ghost: "px-4 py-2 text-muted hover:bg-slate-100 dark:hover:bg-slate-900",
         danger:
-          "bg-danger px-5 py-3 text-white shadow-lg shadow-rose-500/20 hover:brightness-110",
+          "bg-danger px-5 py-3 text-white shadow-sm hover:brightness-110",
       },
       size: {
         default: "",

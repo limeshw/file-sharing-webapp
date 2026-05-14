@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DownloadCloud, ShieldAlert } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { EmptyState } from "../components/empty-state.jsx";
 import { PasswordGateCard } from "../components/password-gate-card.jsx";
 import { Button } from "../components/ui/button.jsx";
@@ -8,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import { Skeleton } from "../components/ui/skeleton.jsx";
 import { useDownloadAccess } from "../context/download-access-context.jsx";
 import { getErrorMessage, isExpiredStatus } from "../lib/utils.js";
-import { buildDownloadPath, fetchFileMeta } from "../services/file-service.js";
+import { downloadFileToDevice, fetchFileMeta } from "../services/file-service.js";
 
 export function DownloadPage() {
   const { uuid } = useParams();
@@ -16,6 +17,7 @@ export function DownloadPage() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -47,16 +49,30 @@ export function DownloadPage() {
 
   const access = accessMap[uuid];
 
-  function startDownload() {
+  async function startDownload() {
     if (!file) {
       return;
     }
 
-    const targetUrl = file.hasPassword
-      ? access?.downloadUrl || buildDownloadPath(uuid, access?.accessKey)
-      : buildDownloadPath(uuid);
+    setIsDownloading(true);
 
-    window.location.assign(targetUrl);
+    try {
+      await downloadFileToDevice({
+        uuid,
+        accessKey: access?.accessKey,
+        filename: file.fileName,
+      });
+      toast.success("Download started.");
+    } catch (error) {
+      toast.error(
+        getErrorMessage(
+          error,
+          "The file could not be saved automatically. This may depend on the storage provider response headers.",
+        ),
+      );
+    } finally {
+      setIsDownloading(false);
+    }
   }
 
   if (status === "loading") {
@@ -90,17 +106,15 @@ export function DownloadPage() {
       <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
         <Card className="rounded-[32px]">
           <CardHeader>
-            <div className="mb-3 flex size-12 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 via-cyan-400 to-emerald-400 text-white">
+            <div className="mb-3 flex size-12 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
               <ShieldAlert className="size-5" />
             </div>
-            <CardTitle>Password verification required</CardTitle>
-            <CardDescription>
-              The backend rejects protected downloads without a valid `accessKey` query parameter. Verify first, then the file can be downloaded.
-            </CardDescription>
+            <CardTitle>Password required</CardTitle>
+            <CardDescription>Enter the password before starting the download.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm leading-7 text-muted">
-              Once the password is verified, this client stores the temporary access payload in session storage and forwards you to the real backend download route.
+              Once the password is verified, you can continue with the file download right away.
             </p>
           </CardContent>
         </Card>
@@ -116,31 +130,22 @@ export function DownloadPage() {
   }
 
   return (
-    <Card className="mx-auto max-w-3xl rounded-[36px] p-2">
-      <div className="rounded-[30px] bg-gradient-to-br from-slate-950 via-blue-950 to-emerald-950 p-8 text-white">
-        <p className="text-sm uppercase tracking-[0.24em] text-white/60">Download gateway</p>
+    <Card className="mx-auto max-w-3xl rounded-[36px] p-8">
+      <div>
+        <p className="text-sm uppercase tracking-[0.24em] text-muted">Download</p>
         <h1 className="mt-3 text-3xl font-semibold">{file.fileName}</h1>
-        <p className="mt-3 text-sm leading-7 text-white/72">
-          This page maps to `GET /files/download/:uuid`. For password-protected transfers, the backend-issued access key is appended automatically.
+        <p className="mt-3 text-sm leading-7 text-muted">
+          Your file is ready. Start the download when you are ready.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button
-            type="button"
-            className="bg-white text-slate-950 hover:bg-white/90"
-            onClick={startDownload}
-          >
+          <Button type="button" onClick={startDownload} disabled={isDownloading}>
             <DownloadCloud className="size-4" />
-            Start download
+            {isDownloading ? "Preparing download..." : "Start download"}
           </Button>
           {file.hasPassword ? (
-            <Button
-              type="button"
-              variant="secondary"
-              className="bg-white/10 text-white hover:bg-white/16"
-              onClick={() => clearAccess(uuid)}
-            >
-              Clear access key
+            <Button type="button" variant="secondary" onClick={() => clearAccess(uuid)}>
+              Clear password access
             </Button>
           ) : null}
         </div>
