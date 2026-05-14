@@ -13,7 +13,7 @@ export function AppShell() {
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
-        <header className="sticky top-5 z-30 mb-6 rounded-[24px] border border-border bg-card px-4 py-3 shadow-sm">
+        <header className="sticky top-5 z-30 mb-6 rounded-[24px] glass-panel px-4 py-3">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center justify-between gap-4">
               <Link to="/" className="flex items-center gap-3">

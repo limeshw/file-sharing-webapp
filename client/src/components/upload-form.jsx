@@ -9,6 +9,7 @@ import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card.jsx";
 import { Input } from "./ui/input.jsx";
 import { Progress } from "./ui/progress.jsx";
+import { Badge } from "./ui/badge.jsx";
 import { UploadResultPanel } from "./upload-result-panel.jsx";
 
 export function UploadForm() {
@@ -106,21 +107,22 @@ export function UploadForm() {
 
   return (
     <div id="upload-panel" className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
-      <Card className="rounded-[32px]">
-        <CardHeader>
-          <CardTitle>Create a secure share link</CardTitle>
-          <CardDescription>
+      <Card className="glass-panel-strong rounded-[32px] overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <CardHeader className="relative z-10 pb-2">
+          <CardTitle className="text-2xl">Create a secure share link</CardTitle>
+          <CardDescription className="text-base">
             Choose a file, set how long the link should stay active, and add a password only if you need one.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10 pt-4">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <button
               type="button"
-              className={`group w-full rounded-[28px] border border-dashed p-6 text-left transition ${
+              className={`group w-full rounded-[28px] border-2 border-dashed p-8 text-left transition-all duration-300 ${
                 isDragging
-                  ? "border-accent bg-blue-50 dark:bg-blue-500/8"
-                  : "border-border bg-slate-50 hover:border-accent/40 hover:bg-white dark:bg-slate-950"
+                  ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10 scale-[1.01]"
+                  : "border-border bg-slate-50/50 hover:border-indigo-400 hover:bg-slate-50/80 dark:bg-slate-900/50 dark:hover:bg-slate-800/50"
               }`}
               onClick={() => fileInputRef.current?.click()}
               onDragEnter={(event) => {
@@ -144,46 +146,46 @@ export function UploadForm() {
                 className="hidden"
                 onChange={(event) => handleFiles(event.target.files)}
               />
-              <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                <div className="flex size-14 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
-                  <CloudUpload className="size-6" />
+              <div className="flex flex-col gap-5 md:flex-row md:items-center">
+                <div className={`flex size-16 items-center justify-center rounded-2xl transition-colors duration-300 ${isDragging ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20'}`}>
+                  <CloudUpload className="size-7" />
                 </div>
                 <div>
-                  <p className="text-lg font-semibold">Drop a file here or browse</p>
-                  <p className="mt-1 text-sm leading-6 text-muted">
+                  <p className="text-xl font-semibold">Drop a file here or browse</p>
+                  <p className="mt-1.5 text-sm leading-6 text-muted">
                     {ALLOWED_FORMATS.join(", ")} supported. Up to {formatBytes(MAX_FILE_SIZE)}.
                   </p>
                 </div>
               </div>
 
               {selectedFile ? (
-                <div className="mt-5 flex items-center justify-between rounded-2xl border border-border bg-white px-4 py-3 dark:bg-slate-900">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-11 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
-                      <FileIcon className="size-4" />
+                <div className="mt-6 flex items-center justify-between rounded-2xl border border-border/50 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm dark:bg-slate-900/80">
+                  <div className="flex items-center gap-4">
+                    <div className="flex size-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                      <FileIcon className="size-5" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium">{selectedFile.name}</p>
+                      <p className="text-sm font-semibold">{selectedFile.name}</p>
                       <p className="text-xs text-muted">{formatBytes(selectedFile.size)}</p>
                     </div>
                   </div>
-                  <p className="text-xs text-muted">Selected</p>
+                  <Badge variant="secondary" className="bg-success/10 text-success border-success/20">Selected</Badge>
                 </div>
               ) : null}
             </button>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-2">
               <div className="space-y-3">
-                <p className="text-sm font-medium">Link expires in</p>
+                <p className="text-sm font-semibold">Link expires in</p>
                 <div className="grid grid-cols-3 gap-2">
                   {EXPIRY_OPTIONS.map((option) => (
                     <button
                       key={option.value}
                       type="button"
-                      className={`rounded-2xl border px-3 py-3 text-sm transition ${
+                      className={`rounded-2xl border px-3 py-3.5 text-sm font-medium transition-all duration-200 ${
                         expiry === option.value
-                          ? "border-accent bg-accent text-accent-foreground"
-                          : "border-border bg-white text-muted hover:border-slate-400 dark:bg-slate-950"
+                          ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                          : "border-border bg-white/50 text-muted hover:border-indigo-300 hover:text-foreground dark:bg-slate-900/50"
                       }`}
                       onClick={() => setExpiry(option.value)}
                     >
@@ -194,7 +196,7 @@ export function UploadForm() {
               </div>
 
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-sm font-medium" htmlFor="password">
+                <label className="flex items-center gap-2 text-sm font-semibold" htmlFor="password">
                   <LockKeyhole className="size-4" />
                   Password
                 </label>
@@ -203,27 +205,28 @@ export function UploadForm() {
                   type="password"
                   value={password}
                   placeholder="Optional"
+                  className="rounded-2xl h-12 bg-white/50 dark:bg-slate-900/50 focus-visible:ring-indigo-500/30"
                   onChange={(event) => setPassword(event.target.value)}
                 />
                 <p className="flex items-center gap-2 text-xs text-muted">
                   <ShieldAlert className="size-3.5" />
-                  Leave this empty if the file should open without a password.
+                  Leave empty for public access.
                 </p>
               </div>
             </div>
 
             {isUploading ? (
-              <div className="rounded-2xl border border-border bg-slate-50 p-4 dark:bg-slate-950">
-                <div className="mb-2 flex items-center justify-between text-sm">
-                  <span>Uploading...</span>
+              <div className="rounded-2xl border border-border/50 bg-indigo-50/50 p-5 backdrop-blur-sm dark:bg-indigo-500/5">
+                <div className="mb-3 flex items-center justify-between text-sm font-medium text-indigo-700 dark:text-indigo-300">
+                  <span>Uploading secure file...</span>
                   <span>{progress}%</span>
                 </div>
-                <Progress value={progress} />
+                <Progress value={progress} className="h-2" />
               </div>
             ) : null}
 
-            <Button type="submit" className="w-full" disabled={isUploading}>
-              {isUploading ? "Creating link..." : "Create secure share link"}
+            <Button type="submit" size="lg" className="w-full rounded-2xl h-14 text-base font-semibold" disabled={isUploading}>
+              {isUploading ? "Processing..." : "Create secure share link"}
             </Button>
           </form>
         </CardContent>

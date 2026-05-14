@@ -1,37 +1,38 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 :root {
   color-scheme: light;
-  --background: #f6f7fb;
-  --foreground: #111827;
-  --muted: #667085;
-  --card: #ffffff;
-  --card-strong: #ffffff;
-  --border: #e5e7eb;
-  --accent: #111827;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --card: rgba(255, 255, 255, 0.6);
+  --card-strong: rgba(255, 255, 255, 0.95);
+  --border: rgba(226, 232, 240, 0.8);
+  --accent: #6366f1;
   --accent-foreground: #ffffff;
-  --success: #0f9f6e;
-  --danger: #dc2626;
-  --ring: rgba(17, 24, 39, 0.12);
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-  --hero-glow: linear-gradient(180deg, #fafbff 0%, #f6f7fb 100%);
+  --success: #10b981;
+  --danger: #ef4444;
+  --ring: rgba(99, 102, 241, 0.25);
+  --shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+  --hero-glow: radial-gradient(100% 100% at 50% 0%, rgba(99, 102, 241, 0.12) 0%, rgba(248, 250, 252, 0) 100%);
 }
 
 .dark {
   color-scheme: dark;
-  --background: #09090b;
-  --foreground: #f5f5f5;
-  --muted: #a1a1aa;
-  --card: #111214;
-  --card-strong: #111214;
-  --border: #27272a;
-  --accent: #fafafa;
-  --accent-foreground: #111214;
+  --background: #020617;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --card: rgba(15, 23, 42, 0.4);
+  --card-strong: rgba(15, 23, 42, 0.85);
+  --border: rgba(30, 41, 59, 0.8);
+  --accent: #818cf8;
+  --accent-foreground: #020617;
   --success: #34d399;
   --danger: #f87171;
-  --ring: rgba(250, 250, 250, 0.1);
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  --hero-glow: linear-gradient(180deg, #0d0d10 0%, #09090b 100%);
+  --ring: rgba(129, 140, 248, 0.25);
+  --shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  --hero-glow: radial-gradient(100% 100% at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(2, 6, 23, 0) 100%);
 }
 
 @theme inline {
@@ -60,40 +61,41 @@
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
     background-image: var(--hero-glow);
+    background-attachment: fixed;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    @apply tracking-tight;
+    @apply tracking-tight font-medium;
   }
 
   button,
   input,
   textarea {
-    @apply outline-none;
+    @apply outline-none transition-all duration-300;
   }
 
   ::selection {
-    background: rgba(37, 99, 235, 0.24);
+    background: rgba(99, 102, 241, 0.24);
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply border border-border bg-card shadow-glass;
+    @apply border border-border bg-card shadow-glass backdrop-blur-2xl transition-all duration-300;
   }
 
   .glass-panel-strong {
-    @apply border border-border bg-card-strong shadow-glass;
+    @apply border border-border bg-card-strong shadow-glass backdrop-blur-3xl transition-all duration-300;
   }
 
   .subtle-grid {
     background-image:
-      linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-    background-size: 22px 22px;
+      linear-gradient(rgba(100, 116, 139, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100, 116, 139, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
   .bg-hero {
