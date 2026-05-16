@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight , CalendarClock, LockKeyhole, RefreshCw } from "lucide-react";
+import { ArrowRight, CalendarClock, LockKeyhole, RefreshCw, Copy, Check } from "lucide-react";
 import { fetchFileMeta } from "../services/file-service.js";
 import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card.jsx";
@@ -67,7 +67,7 @@ export function DashboardGrid({ uploads }) {
                 <CardTitle className="text-xl truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   {item.meta?.fileName || item.originalName}
                 </CardTitle>
-                <CardDescription className="truncate mt-1.5">{item.uuid}</CardDescription>
+                <CopyableLink link={`${window.location.origin}/files/${item.uuid}`} />
               </div>
               <Button asChild size="icon" variant="secondary" className="shrink-0 rounded-2xl group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/20 group-hover:text-indigo-600 transition-colors text-indigo-500">
                 <Link to={`/files/${item.uuid}`} aria-label="Go to download page">
@@ -121,6 +121,34 @@ function PillRow({ Icon, label, value, iconColor = "text-indigo-500", iconBg = "
         <p className="text-[11px] uppercase tracking-wider text-muted font-semibold">{label}</p>
         <p className="text-sm font-medium truncate mt-0.5">{value}</p>
       </div>
+    </div>
+  );
+}
+
+function CopyableLink({ link }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="flex items-center gap-1.5 mt-1.5">
+      <CardDescription className="truncate min-w-0" title={link}>
+        {link}
+      </CardDescription>
+      <button
+        onClick={handleCopy}
+        className="shrink-0 flex items-center justify-center rounded-md p-1 text-muted-foreground hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-colors"
+        title="Copy link"
+        aria-label="Copy link"
+      >
+        {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+      </button>
     </div>
   );
 }

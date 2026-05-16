@@ -116,12 +116,9 @@ export const resolveDownload = async ({ uuid, accessKey }) => {
 export const sendShareEmail = async ({ uuid, emailTo, emailFrom }) => {
   const file = await getFileByUuid(uuid);
 
-  if (file.sender) {
-    throw new AppError("Email already sent for this file.", HTTP_STATUS.UNPROCESSABLE_ENTITY);
-  }
-
   const downloadLink = buildShareUrl(env.appBaseUrl, file.uuid);
 
+  // Update sender/receiver each time (allows re-sharing to different emails)
   file.sender = emailFrom;
   file.receiver = emailTo;
   await file.save();
