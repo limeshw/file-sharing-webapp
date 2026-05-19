@@ -113,7 +113,7 @@ All API endpoints return JSON in one of these two shapes:
 | `403` Forbidden | CORS blocked | Request origin not in `ALLOWED_CLIENTS` |
 | `404` Not Found | Resource missing | File UUID not found |
 | `410` Gone | Link expired | File TTL has passed |
-| `413` Payload Too Large | File too big | Upload exceeds 100 MB |
+| `413` Payload Too Large | File too big | Upload exceeds 10 MB |
 | `415` Unsupported Media Type | Invalid file type | Blocked MIME type or extension |
 | `422` Unprocessable Entity | Validation error | Mongoose model constraint failed or email already sent |
 | `429` Too Many Requests | Rate limited | Too many requests from the same IP |
@@ -156,7 +156,7 @@ All limits reset every **1 hour per IP address**. When exceeded, the server retu
 **Blocked extensions (always rejected regardless of MIME):**
 `.exe`, `.js`, `.apk`, `.bat`, `.cmd`, `.com`, `.msi`, `.sh`, `.bash`, `.zsh`, `.ps1`, `.scr`
 
-**Maximum file size:** `100 MB`
+**Maximum file size:** `10 MB`
 
 ---
 
@@ -211,7 +211,7 @@ Upload a file and receive a shareable link, QR code, and optional download URL.
 
 | Field | Type | Required | Constraints |
 |-------|------|----------|-------------|
-| `myfile` | `file` | ✅ Yes | Max 100 MB; see allowed types above |
+| `myfile` | `file` | ✅ Yes | Max 10 MB; see allowed types above |
 | `expiry` | `string` | ✅ Yes | One of: `1h`, `24h`, `7d` |
 | `password` | `string` | ❌ No | Min 6 characters if provided |
 
@@ -275,7 +275,7 @@ curl -X POST http://localhost:3000/api/files/upload \
 | `400` | `"Invalid expiry selection. Allowed values are 1h, 24h, or 7d."` |
 | `400` | `"Password must be at least 6 characters long."` |
 | `400` | `"No file uploaded."` |
-| `413` | `"File size exceeds 100MB limit."` |
+| `413` | `"File size exceeds 10MB limit."` |
 | `415` | `"Unsupported file type."` |
 | `429` | `"Too many requests. Please try again later."` |
 

@@ -34,7 +34,7 @@ export const ensureFileUploadIsValid = (file) => {
   }
 
   if (file.size > MAX_FILE_SIZE) {
-    return "File size exceeds 100MB limit.";
+    return "File size exceeds 10MB limit.";
   }
 
   if (!isAllowedFile(file)) {

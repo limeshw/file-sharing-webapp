@@ -47,7 +47,7 @@ export function UploadForm() {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size exceeds 100MB limit.");
+      toast.error("File size exceeds 10MB limit.");
       return;
     }
 

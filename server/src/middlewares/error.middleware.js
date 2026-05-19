@@ -16,7 +16,7 @@ const resolveError = (error) => {
     if (error.code === "LIMIT_FILE_SIZE") {
       return {
         statusCode: HTTP_STATUS.PAYLOAD_TOO_LARGE,
-        message: "File size exceeds 100MB limit.",
+        message: "File size exceeds 10MB limit.",
       };
     }
 

@@ -47,7 +47,7 @@ postman/
 
 ## Features
 
-- Single file upload up to 100MB
+- Single file upload up to 10MB
 - Allowed file types: PDF, images, DOC, DOCX, ZIP
 - Dangerous file blocking by MIME type and extension
 - Cloudinary-backed storage
