@@ -5,7 +5,7 @@ export function Progress({ className, value, ...props }) {
   return (
     <ProgressPrimitive.Root
       className={cn(
-        "relative h-3 w-full overflow-hidden rounded-full bg-slate-300/45 dark:bg-slate-800/80",
+        "relative h-3.5 w-full overflow-hidden rounded-full bg-slate-200/50 border border-slate-200/10 dark:bg-white/5 dark:border-white/5",
         className,
       )}
       value={value}

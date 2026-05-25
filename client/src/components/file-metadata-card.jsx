@@ -40,7 +40,7 @@ export function FileMetadataCard({ file, onDownload, hasAccess }) {
 
 function InfoPill({ Icon, label, value }) {
   return (
-    <div className="rounded-[22px] border border-border bg-slate-50 p-4 dark:bg-slate-950">
+    <div className="rounded-[22px] border border-border bg-slate-50/50 p-4 dark:bg-white/5 dark:border-white/5">
       <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
         <Icon className="size-4" />
       </div>

@@ -56,7 +56,7 @@ export function UploadResultPanel({ result }) {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-border bg-slate-50 p-4 dark:bg-slate-950">
+            <div className="rounded-[24px] border border-border bg-slate-50/50 p-4 dark:bg-white/5 dark:border-white/5">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">Share link</p>
               <p className="mt-2 break-all text-sm leading-6">{buildFrontendSharePath(result.uuid)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -88,7 +88,7 @@ export function UploadResultPanel({ result }) {
 
 function ResultStat({ Icon, label, value }) {
   return (
-    <div className="rounded-2xl border border-border bg-slate-50 p-4 dark:bg-slate-950">
+    <div className="rounded-2xl border border-border bg-slate-50/50 p-4 dark:bg-white/5 dark:border-white/5">
       <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
         <Icon className="size-4" />
       </div>
