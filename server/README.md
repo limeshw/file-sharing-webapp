@@ -82,6 +82,7 @@ NODE_ENV=development
 HOST=localhost
 PORT=3000
 APP_BASE_URL=http://localhost:3000
+FRONTEND_BASE_URL=http://localhost:5173
 APP_SECRET=change-this-to-a-long-random-secret
 JSON_LIMIT=1mb
 
@@ -98,6 +99,9 @@ SHARE_RATE_LIMIT_MAX=60
 
 SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
+SMTP_CONNECTION_TIMEOUT_MS=10000
+SMTP_GREETING_TIMEOUT_MS=10000
+SMTP_SOCKET_TIMEOUT_MS=15000
 MAIL_USER=your-smtp-user
 MAIL_PASSWORD=your-smtp-password
 MAIL_FROM_NAME=Linkify
@@ -129,4 +133,5 @@ Postman collection:
 
 - `POST /api/files` is kept for compatibility with the older frontend flow.
 - Set a real `APP_SECRET` before production deployment.
+- Set `FRONTEND_BASE_URL` to your public frontend domain so shared links and emails open the SPA flow.
 - Expired files are removed from both MongoDB and Cloudinary.

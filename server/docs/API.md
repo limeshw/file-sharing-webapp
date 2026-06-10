@@ -706,6 +706,7 @@ NODE_ENV=development          # "development" or "production"
 HOST=localhost
 PORT=3000
 APP_BASE_URL=http://localhost:3000   # Used to build share URLs and QR codes
+FRONTEND_BASE_URL=http://localhost:5173   # Public frontend share-link domain
 APP_SECRET=change-this-to-a-long-random-secret   # Signs accessKey tokens — keep secret!
 JSON_LIMIT=1mb                # Max size of JSON request bodies
 
@@ -730,6 +731,9 @@ VIEW_RATE_LIMIT_MAX=300       # Max view/download requests per IP per hour
 # ─── Email (SMTP) ─────────────────────────────────────────
 SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
+SMTP_CONNECTION_TIMEOUT_MS=10000
+SMTP_GREETING_TIMEOUT_MS=10000
+SMTP_SOCKET_TIMEOUT_MS=15000
 MAIL_USER=your-smtp-user
 MAIL_PASSWORD=your-smtp-password
 MAIL_FROM_NAME=Linkify

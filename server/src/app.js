@@ -12,12 +12,14 @@ import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js
 import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 import fileRoutes from "./routes/file.routes.js";
 import viewRoutes from "./routes/view.routes.js";
+import { verifyEmailTransport } from "./services/email.service.js";
 import { AppError } from "./utils/appError.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.set("trust proxy", 1);
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -63,6 +65,7 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectToMongoDB();
+    await verifyEmailTransport();
     startCleanupCron();
 
     app.listen(env.port, () => {

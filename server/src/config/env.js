@@ -10,9 +10,25 @@ const requiredVariables = [
   "APP_BASE_URL",
 ];
 
+const requiredSmtpVariables = [
+  "SMTP_HOST",
+  "MAIL_USER",
+  "MAIL_PASSWORD",
+  "MAIL_FROM_NAME",
+  "MAIL_FROM_EMAIL",
+];
+
 for (const variable of requiredVariables) {
   if (!process.env[variable]) {
     throw new Error(`Missing required environment variable: ${variable}`);
+  }
+}
+
+if (process.env.NODE_ENV === "production") {
+  for (const variable of requiredSmtpVariables) {
+    if (!process.env[variable]) {
+      throw new Error(`Missing required environment variable: ${variable}`);
+    }
   }
 }
 
@@ -30,6 +46,7 @@ export const env = {
   port: Number(process.env.PORT || 3000),
   mongoUri: process.env.MONGO_CONNECTION_URL,
   appBaseUrl: process.env.APP_BASE_URL,
+  frontendBaseUrl: process.env.FRONTEND_BASE_URL || process.env.APP_BASE_URL,
   appSecret:
     process.env.APP_SECRET ||
     (process.env.NODE_ENV === "production" ? "" : fallbackAppSecret),
@@ -48,6 +65,9 @@ export const env = {
     pass: process.env.MAIL_PASSWORD,
     fromName: process.env.MAIL_FROM_NAME,
     fromEmail: process.env.MAIL_FROM_EMAIL,
+    connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 10000),
+    greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 10000),
+    socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 15000),
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,

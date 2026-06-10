@@ -30,7 +30,7 @@ const ensureActiveFile = (file) => {
 
 export const createFileRecord = async ({ file, expiry, password }) => {
   const uuid = randomUUID();
-  const shareUrl = buildShareUrl(env.appBaseUrl, uuid);
+  const shareUrl = buildShareUrl(env.frontendBaseUrl, uuid);
   const qrCode = await generateQrCodeDataUrl(shareUrl);
   const hashedPassword = password
     ? await bcrypt.hash(String(password), SALT_ROUNDS)
@@ -116,7 +116,7 @@ export const resolveDownload = async ({ uuid, accessKey }) => {
 export const sendShareEmail = async ({ uuid, emailTo, emailFrom }) => {
   const file = await getFileByUuid(uuid);
 
-  const downloadLink = buildShareUrl(env.appBaseUrl, file.uuid);
+  const downloadLink = buildShareUrl(env.frontendBaseUrl, file.uuid);
 
   // Update sender/receiver each time (allows re-sharing to different emails)
   file.sender = emailFrom;
