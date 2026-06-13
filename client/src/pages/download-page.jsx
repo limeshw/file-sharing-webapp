@@ -114,8 +114,8 @@ export function DownloadPage() {
 
   if (file.hasPassword && !access) {
     return (
-      <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
-        <Card className="rounded-[32px]">
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-[1fr_0.92fr]">
+        <Card className="rounded-xl">
           <CardHeader>
             <div className="mb-3 flex size-12 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
               <ShieldAlert className="size-5" />
@@ -141,10 +141,10 @@ export function DownloadPage() {
   }
 
   return (
-    <Card className="mx-auto max-w-3xl rounded-[36px] p-8">
+    <Card className="mx-auto max-w-3xl rounded-xl p-5 sm:p-8">
       <div>
         <p className="text-sm uppercase tracking-[0.24em] text-muted">Download</p>
-        <h1 className="mt-3 text-3xl font-semibold">{file.fileName}</h1>
+        <h1 className="mt-3 text-2xl sm:text-3xl font-semibold break-all">{file.fileName}</h1>
         <p className="mt-3 text-sm leading-7 text-muted">
           Your file is ready. Start the download when you are ready.
         </p>

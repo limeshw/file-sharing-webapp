@@ -106,7 +106,7 @@ export function UploadForm() {
   }
 
   return (
-    <div id="upload-panel" className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
+    <div id="upload-panel" className="grid gap-6 lg:grid-cols-2 xl:grid-cols-[1fr_0.92fr]">
       <Card className="rounded-xl overflow-hidden relative border border-border bg-card/40 shadow">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
         <CardHeader className="relative z-10 pb-2">
@@ -119,7 +119,7 @@ export function UploadForm() {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <button
               type="button"
-              className={`group w-full rounded-xl border-2 border-dashed p-8 text-left transition-all duration-300 ${
+              className={`group w-full rounded-xl border-2 border-dashed p-5 sm:p-8 text-left transition-all duration-300 ${
                 isDragging
                   ? "border-primary bg-primary/10 scale-[1.01]"
                   : "border-border bg-secondary/20 hover:border-primary/50 hover:bg-secondary/40"

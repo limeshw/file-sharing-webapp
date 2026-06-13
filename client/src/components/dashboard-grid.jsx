@@ -77,13 +77,13 @@ export function DashboardGrid({ uploads }) {
 
 function PillRow({ Icon, label, value, iconColor = "text-primary", iconBg = "bg-primary/10 border-primary/20" }) {
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-border/50 bg-background/30 px-4 py-3 backdrop-blur-sm transition-colors hover:bg-background/50">
+    <div className="flex items-center gap-3 sm:gap-4 rounded-lg border border-border/50 bg-background/30 px-3 py-2.5 sm:px-4 sm:py-3 backdrop-blur-sm transition-colors hover:bg-background/50">
       <div className={`flex shrink-0 size-9 items-center justify-center rounded-lg border ${iconBg} ${iconColor}`}>
         <Icon className="size-4" />
       </div>
       <div className="min-w-0">
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</p>
-        <p className="text-sm font-medium truncate mt-0.5 text-foreground">{value}</p>
+        <p className="text-xs sm:text-sm font-medium truncate mt-0.5 text-foreground">{value}</p>
       </div>
     </div>
   );

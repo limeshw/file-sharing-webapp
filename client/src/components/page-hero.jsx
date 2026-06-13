@@ -6,7 +6,7 @@ import { Button } from "./ui/button.jsx";
 export function PageHero() {
   return (
     <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-      <div className="rounded-xl border border-border bg-card/40 p-8 sm:p-12 relative overflow-hidden group shadow">
+      <div className="rounded-xl border border-border bg-card/40 p-5 sm:p-8 md:p-12 relative overflow-hidden group shadow">
         {/* Decorative background glow */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-700"></div>
         
@@ -16,7 +16,7 @@ export function PageHero() {
             <span>Effortless file sharing</span>
           </Badge>
           
-          <h1 className="max-w-3xl text-4xl sm:text-5xl lg:text-6xl font-bold text-balance leading-[1.15] tracking-tight text-foreground">
+          <h1 className="max-w-3xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-balance leading-[1.15] tracking-tight text-foreground">
             Upload once. Share one clean link. Let <span className="premium-gradient-text">Linkify</span> handle the rest.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -60,7 +60,7 @@ export function PageHero() {
 
 function FeatureCard({ Icon, title, description }) {
   return (
-    <div className="rounded-xl border border-border bg-card/40 p-6 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group cursor-default relative overflow-hidden">
+    <div className="rounded-xl border border-border bg-card/40 p-5 sm:p-6 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group cursor-default relative overflow-hidden">
       {/* Subtle hover glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full duration-1000 transition-transform"></div>
       

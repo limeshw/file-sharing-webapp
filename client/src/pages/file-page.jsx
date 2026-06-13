@@ -87,7 +87,7 @@ export function FilePage() {
 
   if (status === "loading") {
     return (
-      <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-[1fr_0.92fr]">
         <Skeleton className="h-72 rounded-xl" />
         <Skeleton className="h-80 rounded-xl" />
       </div>
@@ -117,7 +117,7 @@ export function FilePage() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr] h-full items-start">
+    <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-[1fr_0.92fr] h-full items-start">
       <div className="space-y-6 sticky top-6">
         <FileMetadataCard
           file={file}
