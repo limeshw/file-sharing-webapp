@@ -22,11 +22,19 @@ export function DownloadPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isSlow, setIsSlow] = useState(false);
 
   useEffect(() => {
     if (preloadedFile) return;
 
     let isMounted = true;
+    setIsSlow(false);
+
+    const slowTimer = setTimeout(() => {
+      if (isMounted) {
+        setIsSlow(true);
+      }
+    }, 2500);
 
     async function loadFile() {
       try {
@@ -43,6 +51,8 @@ export function DownloadPage() {
 
         setErrorMessage(getErrorMessage(error, "Unable to load file metadata."));
         setStatus(isExpiredStatus(error?.response?.status) ? "expired" : "error");
+      } finally {
+        clearTimeout(slowTimer);
       }
     }
 
@@ -50,6 +60,7 @@ export function DownloadPage() {
 
     return () => {
       isMounted = false;
+      clearTimeout(slowTimer);
     };
   }, [uuid, preloadedFile]);
 
@@ -87,7 +98,16 @@ export function DownloadPage() {
   }
 
   if (status === "loading") {
-    return <Skeleton className="h-96 rounded-[32px]" />;
+    return (
+      <div className="space-y-6">
+        {isSlow && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-center text-sm text-amber-600 dark:text-amber-400 animate-pulse">
+            Connecting to server. It may take a minute to wake up...
+          </div>
+        )}
+        <Skeleton className="h-96 rounded-xl" />
+      </div>
+    );
   }
 
   if (status === "expired") {
