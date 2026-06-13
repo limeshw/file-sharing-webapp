@@ -6,9 +6,30 @@ import { DownloadAccessProvider } from "./context/download-access-context.jsx";
 import { ThemeProvider } from "./context/theme-context.jsx";
 import { HomePage } from "./pages/home-page.jsx";
 
-const DashboardPage = lazy(() => import("./pages/dashboard-page.jsx").then(m => ({ default: m.DashboardPage })));
-const FilePage = lazy(() => import("./pages/file-page.jsx").then(m => ({ default: m.FilePage })));
-const NotFoundPage = lazy(() => import("./pages/not-found-page.jsx").then(m => ({ default: m.NotFoundPage })));
+// Helper to load components lazily while handling chunk failures due to redeployments
+function safeLazy(importFn) {
+  return lazy(() =>
+    importFn()
+      .then((module) => {
+        sessionStorage.removeItem("chunk-reload-attempted");
+        return module;
+      })
+      .catch((err) => {
+        console.error("Failed to load chunk. Reloading page...", err);
+        const hasReloaded = sessionStorage.getItem("chunk-reload-attempted");
+        if (!hasReloaded) {
+          sessionStorage.setItem("chunk-reload-attempted", "true");
+          window.location.reload();
+          return new Promise(() => {}); // Wait for the reload to trigger
+        }
+        throw err;
+      })
+  );
+}
+
+const DashboardPage = safeLazy(() => import("./pages/dashboard-page.jsx").then(m => ({ default: m.DashboardPage })));
+const FilePage = safeLazy(() => import("./pages/file-page.jsx").then(m => ({ default: m.FilePage })));
+const NotFoundPage = safeLazy(() => import("./pages/not-found-page.jsx").then(m => ({ default: m.NotFoundPage })));
 
 const LoadingFallback = () => (
   <div className="flex h-[50vh] items-center justify-center">
