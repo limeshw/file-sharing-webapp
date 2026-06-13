@@ -136,7 +136,7 @@ export function FilePage() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-[1fr_0.92fr] h-full items-start">
-      <div className="space-y-6 sticky top-6">
+      <div className="space-y-6 lg:sticky lg:top-6">
         <FileMetadataCard
           file={file}
           hasAccess={Boolean(existingAccess)}
