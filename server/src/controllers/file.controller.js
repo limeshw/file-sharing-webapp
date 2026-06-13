@@ -53,6 +53,8 @@ export const verifyPassword = asyncHandler(async (req, res) => {
   });
 });
 
+// Sends a file-sharing email via the Brevo REST API service.
+// Returns a JSON success or failure response to the frontend.
 export const shareFileByEmail = asyncHandler(async (req, res) => {
   validateEmailPayload(req.body);
 

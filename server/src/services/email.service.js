@@ -1,8 +1,6 @@
-import { Resend } from "resend";
-
+import axios from "axios";
 import { env } from "../config/env.js";
-
-let resendClient;
+import { buildShareEmailTemplate } from "./emailTemplate.service.js";
 
 const maskEmail = (value = "") => {
   const [localPart = "", domain = ""] = String(value).split("@");
@@ -25,95 +23,157 @@ const logEmailEvent = (eventName, details = {}) => {
   );
 };
 
-export const isSmtpConfigured = () =>
-  Boolean(
-    env.email.provider === "resend" &&
-      env.email.resendApiKey &&
-      env.email.fromEmail,
-  );
-
-const getEmailClient = () => {
-  if (resendClient) {
-    return resendClient;
-  }
-
-  if (!isSmtpConfigured()) {
-    return null;
-  }
-
-  resendClient = new Resend(env.email.resendApiKey);
-
-  return resendClient;
-};
-
 export const verifyEmailTransport = async () => {
-  const activeProvider = env.email.provider;
-  const activeClient = getEmailClient();
-
-  if (!activeClient) {
+  if (!env.email.apiKey || !env.email.senderEmail) {
     if (env.nodeEnv === "production") {
-      throw new Error("Email provider is not configured.");
+      throw new Error("Brevo email provider is not fully configured (missing BREVO_API_KEY or BREVO_SENDER_EMAIL).");
     }
-
-    console.warn("Email provider is not configured. Email sending is disabled in this environment.");
+    console.warn("Brevo email provider is not configured. Email sending is disabled in this environment.");
     return false;
   }
 
-  logEmailEvent("email_provider_ready", {
-    provider: activeProvider,
-    fromEmail: env.email.fromEmail,
-  });
+  try {
+    const response = await axios.get("https://api.brevo.com/v3/account", {
+      headers: {
+        "api-key": env.email.apiKey,
+        "accept": "application/json",
+      },
+      timeout: 5000, // 5 seconds timeout
+    });
 
-  return true;
+    if (response.status === 200) {
+      logEmailEvent("email_provider_ready", {
+        provider: "brevo",
+        senderEmail: env.email.senderEmail,
+      });
+      return true;
+    }
+  } catch (error) {
+    const errorMsg = error.response?.data?.message || error.message;
+    console.error(`Brevo API key validation failed: ${errorMsg}`);
+    
+    if (env.nodeEnv === "production") {
+      throw new Error(`Brevo email provider verification failed: ${errorMsg}`);
+    }
+    return false;
+  }
 };
 
-export const sendMail = async ({ to, subject, text, html }) => {
-  const activeClient = getEmailClient();
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!activeClient) {
-    throw new Error("Email provider is not configured.");
+export const sendEmail = async ({ to, subject, html, text }) => {
+  if (!to || !EMAIL_REGEX.test(to)) {
+    throw new Error("Invalid recipient email address.");
+  }
+  if (!subject) {
+    throw new Error("Email subject is required.");
+  }
+  if (!html) {
+    throw new Error("Email HTML body is required.");
+  }
+  if (!env.email.apiKey) {
+    throw new Error("Brevo API key is not configured.");
+  }
+  if (!env.email.senderEmail) {
+    throw new Error("Brevo sender email is not configured.");
   }
 
   const startedAt = Date.now();
-
   logEmailEvent("email_send_started", {
     to: maskEmail(to),
     subject,
-    provider: env.email.provider,
+    provider: "brevo",
   });
 
   try {
-    const { data, error } = await activeClient.emails.send({
-      from: `${env.email.fromName} <${env.email.fromEmail}>`,
-      to,
-      subject,
-      text: text || undefined,
-      html,
-    });
-
-    if (error) {
-      throw error;
-    }
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: env.email.senderName,
+          email: env.email.senderEmail,
+        },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+        textContent: text || undefined,
+      },
+      {
+        headers: {
+          "api-key": env.email.apiKey,
+          "content-type": "application/json",
+          "accept": "application/json",
+        },
+        timeout: 10000, // 10 seconds timeout
+      }
+    );
 
     logEmailEvent("email_send_succeeded", {
       to: maskEmail(to),
       subject,
-      provider: env.email.provider,
+      provider: "brevo",
       durationMs: Date.now() - startedAt,
-      messageId: data?.id || null,
+      messageId: response.data?.messageId || null,
     });
 
-    return data;
+    return response.data;
   } catch (error) {
+    const errorMsg = error.response?.data?.message || error.message;
+    const errorCode = error.response?.data?.code || error.code || null;
+    const responseCode = error.response?.status || null;
+
     logEmailEvent("email_send_failed", {
       to: maskEmail(to),
       subject,
-      provider: env.email.provider,
+      provider: "brevo",
       durationMs: Date.now() - startedAt,
-      errorCode: error?.code || null,
-      responseCode: error?.statusCode || error?.response?.status || null,
-      errorMessage: error?.message || "Unknown email provider error",
+      errorCode,
+      responseCode,
+      errorMessage: errorMsg,
     });
-    throw error;
+
+    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+      throw new Error(`Email sending timed out: ${errorMsg}`);
+    }
+    throw new Error(`Brevo API failure: ${errorMsg}`);
   }
+};
+
+export const sendFileShareEmail = async ({
+  to,
+  emailFrom,
+  fileName,
+  fileSize,
+  downloadLink,
+  expires,
+}) => {
+  if (!downloadLink) {
+    throw new Error("Missing file download link.");
+  }
+  if (!fileName) {
+    throw new Error("File name is required.");
+  }
+  if (!fileSize) {
+    throw new Error("File size is required.");
+  }
+  if (!emailFrom || !EMAIL_REGEX.test(emailFrom)) {
+    throw new Error("Invalid sender email address.");
+  }
+
+  const html = buildShareEmailTemplate({
+    emailFrom,
+    downloadLink,
+    size: fileSize,
+    expires,
+    fileName,
+  });
+
+  const text = `${emailFrom} shared a file with you: ${fileName} (${fileSize}). Download link: ${downloadLink}`;
+
+  return sendEmail({
+    to,
+    subject: "File Shared With You",
+    html,
+    text,
+  });
 };

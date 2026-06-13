@@ -10,8 +10,7 @@ import { buildShareUrl, formatBytes, resolveExpiryDate } from "../utils/file.uti
 import { createDownloadAccessKey, verifyDownloadAccessKey } from "../utils/token.util.js";
 import { unlink } from "node:fs/promises";
 import { deleteCloudinaryFile, uploadLocalFileToCloudinary } from "./cloudinary.service.js";
-import { sendMail } from "./email.service.js";
-import { buildShareEmailTemplate } from "./emailTemplate.service.js";
+import { sendFileShareEmail } from "./email.service.js";
 
 const SALT_ROUNDS = 10;
 
@@ -128,16 +127,13 @@ export const sendShareEmail = async ({ uuid, emailTo, emailFrom }) => {
   file.receiver = emailTo;
   await file.save();
 
-  await sendMail({
+  await sendFileShareEmail({
     to: emailTo,
-    subject: "Linkify - File Shared With You",
-    text: `${emailFrom} shared a file with you: ${downloadLink}`,
-    html: buildShareEmailTemplate({
-      emailFrom,
-      downloadLink,
-      size: formatBytes(file.size),
-      expires: EXPIRY_LABELS[file.expiryOption] || "selected duration",
-    }),
+    emailFrom,
+    fileName: file.originalName,
+    fileSize: formatBytes(file.size),
+    downloadLink,
+    expires: EXPIRY_LABELS[file.expiryOption] || "selected duration",
   });
 
   return file;

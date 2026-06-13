@@ -11,8 +11,8 @@ const requiredVariables = [
 ];
 
 const requiredEmailVariables = [
-  "RESEND_API_KEY",
-  "MAIL_FROM_EMAIL",
+  "BREVO_API_KEY",
+  "BREVO_SENDER_EMAIL",
 ];
 
 for (const variable of requiredVariables) {
@@ -56,10 +56,9 @@ export const env = {
   uploadRateLimitMax: Number(process.env.UPLOAD_RATE_LIMIT_MAX || 20),
   shareRateLimitMax: Number(process.env.SHARE_RATE_LIMIT_MAX || 60),
   email: {
-    provider: process.env.EMAIL_PROVIDER || "resend",
-    resendApiKey: process.env.RESEND_API_KEY,
-    fromName: process.env.MAIL_FROM_NAME || "Linkify",
-    fromEmail: process.env.MAIL_FROM_EMAIL,
+    apiKey: process.env.BREVO_API_KEY,
+    senderEmail: process.env.BREVO_SENDER_EMAIL,
+    senderName: process.env.BREVO_SENDER_NAME || "Linkify",
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,

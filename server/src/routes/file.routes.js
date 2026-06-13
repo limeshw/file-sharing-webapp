@@ -15,6 +15,7 @@ const router = Router();
 
 router.post("/upload", uploadRateLimiter, singleFileUploadMiddleware, uploadFile);
 router.post("/verify-password", shareRateLimiter, verifyPassword);
+// Send file share link via Brevo email REST API (rate-limited)
 router.post("/send", shareRateLimiter, shareFileByEmail);
 
 router.post("/", uploadRateLimiter, singleFileUploadMiddleware, uploadFile);
