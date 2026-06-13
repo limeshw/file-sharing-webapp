@@ -54,12 +54,12 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           {/* Logo Section */}
           <div className="col-span-2 space-y-4">
-            <div className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center gap-3 group">
               <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/25 transition-all duration-300">
                 <Link2 className="size-4.5 text-primary transition-transform group-hover:rotate-45 duration-300" />
               </div>
               <span className="text-base font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">Linkify</span>
-            </div>
+            </Link>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
               Secure, fast, and temporary file sharing. Upload files up to 10MB and share them instantly with password protection and auto-expiry.
             </p>
