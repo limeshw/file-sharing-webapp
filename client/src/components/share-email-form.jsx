@@ -34,15 +34,15 @@ export function ShareEmailForm({ uuid, compact = false }) {
   }
 
   return (
-    <Card className={compact ? "rounded-[24px]" : "rounded-[32px]"}>
+    <Card className="rounded-xl border border-border bg-card/40 shadow">
       <CardHeader>
         <CardTitle>Email this link</CardTitle>
-        <CardDescription>Send the file link directly from Linkify.</CardDescription>
+        <CardDescription className="text-sm">Send the file link directly from Linkify.</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor={`email-to-${uuid}`}>
+            <label className="text-sm font-semibold text-foreground" htmlFor={`email-to-${uuid}`}>
               Recipient email
             </label>
             <Input
@@ -50,6 +50,8 @@ export function ShareEmailForm({ uuid, compact = false }) {
               type="email"
               value={formState.emailTo}
               placeholder="receiver@example.com"
+              className="rounded-lg h-10"
+              required
               onChange={(event) =>
                 setFormState((currentState) => ({
                   ...currentState,
@@ -60,7 +62,7 @@ export function ShareEmailForm({ uuid, compact = false }) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor={`email-from-${uuid}`}>
+            <label className="text-sm font-semibold text-foreground" htmlFor={`email-from-${uuid}`}>
               Your email
             </label>
             <Input
@@ -68,6 +70,8 @@ export function ShareEmailForm({ uuid, compact = false }) {
               type="email"
               value={formState.emailFrom}
               placeholder="sender@example.com"
+              className="rounded-lg h-10"
+              required
               onChange={(event) =>
                 setFormState((currentState) => ({
                   ...currentState,
@@ -77,7 +81,7 @@ export function ShareEmailForm({ uuid, compact = false }) {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" className="w-full h-10 shadow-sm" disabled={isSubmitting}>
             <Send className="size-4" />
             {isSubmitting ? "Sending..." : "Send email"}
           </Button>

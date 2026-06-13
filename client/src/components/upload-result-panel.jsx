@@ -18,10 +18,10 @@ export function UploadResultPanel({ result }) {
   }
 
   return (
-    <Card className="rounded-[32px]">
+    <Card className="rounded-xl border border-border bg-card/40 shadow">
       <CardHeader>
         <CardTitle>{result ? "Your link is ready" : "Share link preview"}</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           {result
             ? "Copy the link below and send it to your receiver."
             : "Once the upload finishes, the share link will appear here."}
@@ -30,15 +30,15 @@ export function UploadResultPanel({ result }) {
       <CardContent>
         {!result ? (
           <div className="space-y-5">
-            <Skeleton className="h-32 rounded-[24px]" />
-            <Skeleton className="h-16 rounded-[20px]" />
-            <Skeleton className="h-52 rounded-[24px]" />
+            <Skeleton className="h-32 rounded-lg" />
+            <Skeleton className="h-16 rounded-lg" />
+            <Skeleton className="h-52 rounded-lg" />
           </div>
         ) : (
           <div className="space-y-5">
-            <div className="rounded-[28px] border border-border bg-card p-6">
-              <h3 className="text-2xl font-semibold">{result.originalName}</h3>
-              <p className="mt-2 text-sm text-muted">
+            <div className="rounded-lg border border-border bg-secondary/10 p-6">
+              <h3 className="text-xl font-semibold text-foreground">{result.originalName}</h3>
+              <p className="mt-1.5 text-xs text-muted-foreground">
                 {formatBytes(result.size)} • {result.mimeType}
               </p>
 
@@ -56,9 +56,9 @@ export function UploadResultPanel({ result }) {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-border bg-slate-50/50 p-4 dark:bg-white/5 dark:border-white/5">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted">Share link</p>
-              <p className="mt-2 break-all text-sm leading-6">{buildFrontendSharePath(result.uuid)}</p>
+            <div className="rounded-lg border border-border bg-secondary/10 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Share link</p>
+              <p className="mt-2 break-all text-sm leading-6 text-foreground font-mono">{buildFrontendSharePath(result.uuid)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   variant="secondary"
@@ -88,12 +88,12 @@ export function UploadResultPanel({ result }) {
 
 function ResultStat({ Icon, label, value }) {
   return (
-    <div className="rounded-2xl border border-border bg-slate-50/50 p-4 dark:bg-white/5 dark:border-white/5">
-      <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+    <div className="rounded-lg border border-border bg-background/50 p-4">
+      <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
         <Icon className="size-4" />
       </div>
-      <p className="text-xs uppercase tracking-[0.18em] text-muted">{label}</p>
-      <p className="mt-1 text-sm font-medium">{value}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
     </div>
   );
 }

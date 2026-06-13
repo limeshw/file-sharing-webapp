@@ -10,14 +10,14 @@ export function FilePreviewCard({ file, accessKey }) {
   const previewUrl = buildDownloadPath(file.uuid, accessKey);
 
   return (
-    <Card className="rounded-[32px] overflow-hidden bg-slate-50/50 dark:bg-slate-900/50 flex flex-col h-full border-border/50">
+    <Card className="rounded-xl overflow-hidden bg-secondary/10 flex flex-col h-full border border-border/50">
       <CardContent className="p-0 flex-grow flex items-center justify-center min-h-[400px]">
         {isImage ? (
           <div className="w-full h-full p-4 flex items-center justify-center bg-black/5 dark:bg-black/20">
             <img
               src={previewUrl}
               alt={file.fileName}
-              className="max-w-full max-h-[500px] object-contain rounded-2xl shadow-sm"
+              className="max-w-full max-h-[500px] object-contain rounded-lg shadow"
               loading="lazy"
             />
           </div>
@@ -26,19 +26,19 @@ export function FilePreviewCard({ file, accessKey }) {
             <video
               src={previewUrl}
               controls
-              className="max-w-full max-h-[500px] object-contain rounded-2xl shadow-sm bg-black"
+              className="max-w-full max-h-[500px] object-contain rounded-lg shadow bg-black"
             >
               Your browser does not support the video tag.
             </video>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground gap-4">
-            <div className="w-32 h-32 bg-indigo-50 dark:bg-indigo-500/10 rounded-[32px] flex items-center justify-center rotate-3 transition-transform hover:rotate-6">
-              <FileIcon className="size-16 text-indigo-500 dark:text-indigo-400" />
+            <div className="w-32 h-32 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center rotate-3 transition-transform hover:rotate-6 duration-300">
+              <FileIcon className="size-16 text-primary" />
             </div>
             <div className="mt-2 space-y-1">
               <p className="text-lg font-medium text-foreground">{file.fileName}</p>
-              <p className="text-sm">Preview not available for this file type</p>
+              <p className="text-sm text-muted-foreground">Preview not available for this file type</p>
             </div>
           </div>
         )}

@@ -88,8 +88,8 @@ export function FilePage() {
   if (status === "loading") {
     return (
       <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
-        <Skeleton className="h-72 rounded-[32px]" />
-        <Skeleton className="h-80 rounded-[32px]" />
+        <Skeleton className="h-72 rounded-xl" />
+        <Skeleton className="h-80 rounded-xl" />
       </div>
     );
   }

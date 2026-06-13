@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowUpRight, ShieldCheck, TimerReset, Upload } from "lucide-react";
 import { PageHero } from "../components/page-hero.jsx";
 import { UploadForm } from "../components/upload-form.jsx";
@@ -6,12 +7,26 @@ import { Button } from "../components/ui/button.jsx";
 import { Card } from "../components/ui/card.jsx";
 
 export function HomePage() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === "#upload-panel") {
+      const timer = setTimeout(() => {
+        const element = document.getElementById("upload-panel");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [location]);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHero />
       <UploadForm />
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="grid gap-6 lg:grid-cols-3">
         <MiniStory
           Icon={Upload}
           title="Fast upload"
@@ -29,16 +44,16 @@ export function HomePage() {
         />
       </section>
 
-      <Card className="rounded-[32px] p-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-muted">Recent transfers</p>
-            <h2 className="mt-2 text-3xl font-semibold">See the files you shared from this browser.</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
+      <Card className="rounded-xl p-8 border border-border bg-card/40 shadow">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent transfers</p>
+            <h2 className="text-2xl font-semibold text-foreground tracking-tight">See the files you shared from this browser.</h2>
+            <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
               Use the dashboard to reopen recent links, check their status, and continue sharing when needed.
             </p>
           </div>
-          <Button asChild variant="secondary">
+          <Button asChild variant="secondary" className="rounded-lg h-10 border border-border">
             <Link to="/dashboard">
               Open dashboard
               <ArrowUpRight className="size-4" />
@@ -52,12 +67,12 @@ export function HomePage() {
 
 function MiniStory({ Icon, title, description }) {
   return (
-    <div className="rounded-[28px] border border-border bg-card p-6 shadow-sm">
-      <div className="mb-4 flex size-12 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
+    <div className="rounded-xl border border-border bg-card/40 p-6 shadow shadow-black/5 hover:-translate-y-0.5 transition-all duration-300">
+      <div className="mb-4 flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
         <Icon className="size-5" />
       </div>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }

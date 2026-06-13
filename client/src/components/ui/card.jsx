@@ -2,22 +2,52 @@ import { cn } from "../../lib/utils.js";
 
 export function Card({ className, ...props }) {
   return (
-    <div className={cn("glass-panel rounded-[28px] p-6", className)} {...props} />
+    <div
+      className={cn(
+        "rounded-xl border border-border bg-card text-card-foreground shadow transition-all duration-300",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
 export function CardHeader({ className, ...props }) {
-  return <div className={cn("mb-5 space-y-2", className)} {...props} />;
+  return (
+    <div
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
+  );
 }
 
 export function CardTitle({ className, ...props }) {
-  return <h2 className={cn("text-xl font-semibold", className)} {...props} />;
+  return (
+    <h3
+      className={cn("font-semibold leading-none tracking-tight text-xl text-foreground", className)}
+      {...props}
+    />
+  );
 }
 
 export function CardDescription({ className, ...props }) {
-  return <p className={cn("text-sm text-muted", className)} {...props} />;
+  return (
+    <p
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  );
 }
 
 export function CardContent({ className, ...props }) {
-  return <div className={cn("space-y-4", className)} {...props} />;
+  return <div className={cn("p-6 pt-0", className)} {...props} />;
+}
+
+export function CardFooter({ className, ...props }) {
+  return (
+    <div
+      className={cn("flex items-center p-6 pt-0", className)}
+      {...props}
+    />
+  );
 }

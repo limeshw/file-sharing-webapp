@@ -3,19 +3,20 @@ import { Badge } from "./ui/badge.jsx";
 import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card.jsx";
 import { formatExpiry, getTimeRemainingLabel } from "../lib/utils.js";
-
 import { Progress } from "./ui/progress.jsx";
 
 export function FileMetadataCard({ file, onDownload, hasAccess, isDownloading, downloadProgress }) {
   return (
-    <Card className="rounded-[32px]">
+    <Card className="rounded-xl border border-border bg-card/40 shadow">
       <CardHeader>
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge>{file.hasPassword ? "Password protected" : "Ready to download"}</Badge>
-          <Badge>{getTimeRemainingLabel(file.expiresAt)}</Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={file.hasPassword ? "destructive" : "default"}>
+            {file.hasPassword ? "Password protected" : "Ready to download"}
+          </Badge>
+          <Badge variant="secondary">{getTimeRemainingLabel(file.expiresAt)}</Badge>
         </div>
-        <CardTitle className="text-2xl">{file.fileName}</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-2xl mt-2">{file.fileName}</CardTitle>
+        <CardDescription className="text-sm">
           Review the file details below, then continue to download.
         </CardDescription>
       </CardHeader>
@@ -47,8 +48,8 @@ export function FileMetadataCard({ file, onDownload, hasAccess, isDownloading, d
 
         {isDownloading ? (
           <div className="mt-6 space-y-2 max-w-sm">
-            <Progress value={downloadProgress} className="h-2 w-full" />
-            <p className="text-xs text-muted text-right">{downloadProgress}% complete</p>
+            <Progress value={downloadProgress} className="h-2.5 w-full" />
+            <p className="text-xs text-muted-foreground text-right">{downloadProgress}% complete</p>
           </div>
         ) : null}
       </CardContent>
@@ -58,12 +59,12 @@ export function FileMetadataCard({ file, onDownload, hasAccess, isDownloading, d
 
 function InfoPill({ Icon, label, value }) {
   return (
-    <div className="rounded-[22px] border border-border bg-slate-50/50 p-4 dark:bg-white/5 dark:border-white/5">
-      <div className="mb-3 flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+    <div className="rounded-lg border border-border bg-background/50 p-4 shadow-sm">
+      <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
         <Icon className="size-4" />
       </div>
-      <p className="text-xs uppercase tracking-[0.18em] text-muted">{label}</p>
-      <p className="mt-1 text-sm font-medium">{value}</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
     </div>
   );
 }

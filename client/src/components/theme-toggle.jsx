@@ -10,17 +10,17 @@ export function ThemeToggle({ className, showLabel = false }) {
   return (
     <Button
       type="button"
-      variant="secondary"
+      variant="outline"
       size={showLabel ? "default" : "icon"}
-      className={cn("min-w-10", className)}
+      className={cn("min-w-10 rounded-lg", className)}
       onClick={toggleTheme}
       aria-label="Toggle theme"
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (
-        <SunMedium className="size-4" />
+        <SunMedium className="size-4 text-primary" />
       ) : (
-        <MoonStar className="size-4" />
+        <MoonStar className="size-4 text-primary" />
       )}
     </Button>
   );

@@ -14,7 +14,6 @@ export function DashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 4;
 
-
   if (!uploads.length) {
     return (
       <EmptyState
@@ -35,23 +34,63 @@ export function DashboardPage() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedUploads = filteredUploads.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+
+      let start = Math.max(2, currentPage - 1);
+      let end = Math.min(totalPages - 1, currentPage + 1);
+
+      if (currentPage <= 3) {
+        end = 4;
+      } else if (currentPage >= totalPages - 2) {
+        start = totalPages - 3;
+      }
+
+      if (start > 2) {
+        pages.push("...");
+      }
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (end < totalPages - 1) {
+        pages.push("...");
+      }
+
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="space-y-6">
-      <Card className="rounded-[32px]">
+      <Card className="rounded-xl border border-border bg-card/40 shadow">
         <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-            <div>
-              <div className="mb-3 flex size-12 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex size-12 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
                 <DatabaseZap className="size-5" />
               </div>
-              <CardTitle className="text-3xl">Recent transfers</CardTitle>
-              <CardDescription>
-                Reopen your latest share links and check their current status.
-              </CardDescription>
+              <div>
+                <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Recent transfers</CardTitle>
+                <CardDescription className="text-sm">
+                  Reopen your latest share links and check their current status.
+                </CardDescription>
+              </div>
             </div>
             
-            <div className="relative mt-2 md:mt-0 w-full md:w-64 shrink-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted/80" />
+            <div className="relative w-full md:w-64 shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/80" />
               <Input
                 type="text"
                 placeholder="Search files..."
@@ -60,7 +99,7 @@ export function DashboardPage() {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-9 rounded-2xl"
+                className="pl-9 rounded-lg"
               />
             </div>
           </div>
@@ -68,36 +107,71 @@ export function DashboardPage() {
       </Card>
 
       {filteredUploads.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted font-medium">No files match your search.</p>
-        </div>
+        <Card className="text-center py-12 rounded-xl border bg-card/30">
+          <p className="text-muted-foreground font-medium text-sm">No files match your search.</p>
+        </Card>
       ) : (
         <>
           <DashboardGrid uploads={paginatedUploads} />
           
           {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4">
-              <Button
-                variant="secondary"
-                className="rounded-2xl flex items-center gap-2"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="size-4" />
-                Previous
-              </Button>
-              <span className="text-sm font-medium text-muted">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                className="rounded-2xl flex items-center gap-2"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-                <ChevronRight className="size-4" />
-              </Button>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/40">
+              <p className="text-xs text-muted-foreground">
+                Showing <span className="font-semibold text-foreground">{startIndex + 1}</span> to{" "}
+                <span className="font-semibold text-foreground">
+                  {Math.min(startIndex + ITEMS_PER_PAGE, filteredUploads.length)}
+                </span>{" "}
+                of <span className="font-semibold text-foreground">{filteredUploads.length}</span> transfers
+              </p>
+              
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-lg h-9 w-9 border border-border"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  aria-label="Go to previous page"
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
+                
+                {getPageNumbers().map((page, idx) => {
+                  if (page === "...") {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-xs text-muted-foreground">
+                        ...
+                      </span>
+                    );
+                  }
+                  
+                  return (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      className={`h-9 w-9 text-xs rounded-lg font-semibold transition-all duration-200 ${
+                        currentPage === page
+                          ? "shadow-sm shadow-primary/20 bg-primary hover:bg-primary/90 text-primary-foreground border-transparent"
+                          : "hover:bg-secondary/40 text-muted-foreground hover:text-foreground border border-border hover:border-primary/50"
+                      }`}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+                
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-lg h-9 w-9 border border-border"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  aria-label="Go to next page"
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
+              </div>
             </div>
           )}
         </>

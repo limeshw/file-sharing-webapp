@@ -3,23 +3,26 @@ import { Slot } from "@radix-ui/react-slot";
 import { cn } from "../../lib/utils.js";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium transition duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:ring-4 focus-visible:ring-ring",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-accent text-accent-foreground shadow-sm shadow-indigo-500/10 hover:brightness-105 hover:shadow-md hover:shadow-indigo-500/20 hover:-translate-y-0.5",
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90 active:scale-[0.98] transition-all duration-150",
+        destructive:
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:scale-[0.98] transition-all duration-150",
+        outline:
+          "border border-input bg-background shadow-sm hover:bg-secondary hover:text-secondary-foreground active:scale-[0.98] transition-all duration-150",
         secondary:
-          "border border-border bg-card/85 text-foreground shadow-sm backdrop-blur-md hover:bg-slate-100 hover:shadow-md dark:bg-white/5 dark:border-white/5 dark:hover:bg-white/10 dark:hover:border-white/10 hover:-translate-y-0.5",
-        ghost: "text-muted hover:bg-slate-100 dark:hover:bg-white/5 hover:text-foreground",
-        danger:
-          "bg-danger text-white shadow-sm hover:brightness-110 hover:-translate-y-0.5",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 active:scale-[0.98] transition-all duration-150",
+        ghost: "hover:bg-secondary hover:text-secondary-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "px-5 py-3",
-        sm: "px-3 py-2 text-xs",
-        lg: "px-6 py-3.5 text-base",
-        icon: "size-10 rounded-full shrink-0 flex items-center justify-center p-0",
+        default: "h-10 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-12 rounded-lg px-8 text-base",
+        icon: "h-10 w-10 rounded-lg shrink-0 flex items-center justify-center p-0",
       },
     },
     defaultVariants: {
@@ -45,3 +48,5 @@ export function Button({
     />
   );
 }
+
+export { buttonVariants };

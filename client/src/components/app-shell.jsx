@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { CloudUpload, LayoutDashboard } from "lucide-react";
+import { CloudUpload, LayoutDashboard, Link2 } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle.jsx";
 import { SiteFooter } from "./site-footer.jsx";
 import { cn } from "../lib/utils.js";
@@ -11,25 +11,26 @@ const navigation = [
 
 export function AppShell() {
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
-        <header className="sticky top-5 z-30 mb-6 rounded-[24px] glass-panel px-4 py-3">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center justify-between gap-4">
-              <Link to="/" className="flex items-center gap-3">
-                <img
-                  src="/linkify-logo.png"
-                  alt="Linkify"
-                  className="h-8 w-auto object-contain sm:h-9"
-                />
-                <div className="hidden sm:block">
-                  <p className="text-xs text-muted">File sharing made simple</p>
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 flex flex-col justify-between">
+      <div className="mx-auto flex w-full max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+        {/* Premium Floating Header */}
+        <header className="sticky top-6 z-40 mb-8 rounded-2xl border border-border/60 bg-background/50 backdrop-blur-xl px-5 py-4 shadow-xl shadow-black/10 transition-all duration-300">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-3 group">
+                <div className="relative flex items-center justify-center p-2.5 rounded-xl bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-all duration-300">
+                  <div className="absolute inset-0 bg-primary/20 rounded-xl blur group-hover:blur-md transition-all duration-300 opacity-50"></div>
+                  <Link2 className="size-5 text-primary relative z-10 transition-transform group-hover:rotate-45 duration-300" />
+                </div>
+                <div className="flex flex-col leading-none">
+                  <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-primary/80 bg-clip-text text-transparent group-hover:text-primary transition-all duration-300">Linkify</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5 font-medium hidden sm:block">File sharing made simple</span>
                 </div>
               </Link>
             </div>
 
-            <div className="flex items-center gap-3">
-              <nav className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between sm:justify-end gap-4">
+              <nav className="flex gap-2">
                 {navigation.map((item) => {
                   const Icon = item.icon;
 
@@ -39,10 +40,10 @@ export function AppShell() {
                       to={item.to}
                       className={({ isActive }) =>
                         cn(
-                          "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm transition",
+                          "relative inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-300 border",
                           isActive
-                            ? "bg-accent text-accent-foreground"
-                            : "text-muted hover:bg-slate-100 dark:hover:bg-white/5",
+                            ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
+                            : "text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground hover:border-border/60",
                         )
                       }
                     >
@@ -52,17 +53,18 @@ export function AppShell() {
                   );
                 })}
               </nav>
-              <ThemeToggle className="shrink-0" showLabel />
+              <div className="h-6 w-[1px] bg-border/60 hidden sm:block"></div>
+              <ThemeToggle className="shrink-0 border-border/60 hover:bg-secondary hover:text-foreground" showLabel={false} />
             </div>
           </div>
         </header>
 
-        <main className="flex-1">
+        <main className="flex-1 py-2 relative z-10">
           <Outlet />
         </main>
-
-        <SiteFooter />
       </div>
+      
+      <SiteFooter />
     </div>
   );
 }
