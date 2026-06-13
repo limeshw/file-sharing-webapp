@@ -71,3 +71,13 @@ export function buildDownloadPath(uuid, accessKey) {
 
   return url.toString();
 }
+
+export function buildPreviewPath(uuid, accessKey) {
+  const url = new URL(buildBackendUrl(`/files/preview/${uuid}`), window.location.href);
+
+  if (accessKey) {
+    url.searchParams.set("accessKey", accessKey);
+  }
+
+  return url.toString();
+}

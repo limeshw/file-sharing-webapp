@@ -4,12 +4,14 @@ import {
   downloadFile,
   fileInfo,
   showFilePage,
+  previewFile,
 } from "../controllers/view.controller.js";
 import { viewRateLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
 router.get("/meta/:uuid", viewRateLimiter, fileInfo);
+router.get("/preview/:uuid", viewRateLimiter, previewFile);
 router.get("/download/:uuid", viewRateLimiter, downloadFile);
 router.get("/:uuid", viewRateLimiter, showFilePage);
 

@@ -1,6 +1,6 @@
 import { HTTP_STATUS } from "../constants/http.constants.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { getFileByUuid, resolveDownload, buildFileViewModel } from "../services/file.service.js";
+import { getFileByUuid, resolveDownload, resolvePreview, buildFileViewModel } from "../services/file.service.js";
 import { validateUuid } from "../validators/file.validator.js";
 import { AppError } from "../utils/appError.js";
 import { Readable } from "node:stream";
@@ -54,4 +54,14 @@ export const fileInfo = asyncHandler(async (req, res) => {
     message: "File fetched successfully",
     data: buildFileViewModel(file),
   });
+});
+
+export const previewFile = asyncHandler(async (req, res) => {
+  validateUuid(req.params.uuid);
+  const file = await resolvePreview({
+    uuid: req.params.uuid,
+    accessKey: req.query.accessKey,
+  });
+
+  res.redirect(file.url);
 });

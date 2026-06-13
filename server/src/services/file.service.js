@@ -117,6 +117,19 @@ export const resolveDownload = async ({ uuid, accessKey }) => {
   return file;
 };
 
+export const resolvePreview = async ({ uuid, accessKey }) => {
+  const file = await getFileByUuid(uuid);
+
+  if (file.hasPassword && !verifyDownloadAccessKey(accessKey, uuid)) {
+    throw new AppError(
+      "Password verification required before preview.",
+      HTTP_STATUS.UNAUTHORIZED,
+    );
+  }
+
+  return file;
+};
+
 export const sendShareEmail = async ({ uuid, emailTo, emailFrom }) => {
   const file = await getFileByUuid(uuid);
 

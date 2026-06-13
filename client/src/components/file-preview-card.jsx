@@ -2,12 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { FileIcon, Loader2 } from "lucide-react";
 import { Card, CardContent } from "./ui/card.jsx";
-import { buildDownloadPath } from "../services/file-service.js";
+import { buildPreviewPath } from "../services/file-service.js";
 
 export function FilePreviewCard({ file, accessKey }) {
   const isImage = file.mimeType?.startsWith("image/");
   const isVideo = file.mimeType?.startsWith("video/");
   const isPdf = file.mimeType === "application/pdf";
+  
+  const isDoc = useMemo(() => {
+    return (
+      /\.(doc|docx)$/i.test(file.fileName) ||
+      ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(file.mimeType)
+    );
+  }, [file.mimeType, file.fileName]);
   
   const isText = useMemo(() => {
     return (
@@ -17,7 +24,7 @@ export function FilePreviewCard({ file, accessKey }) {
     );
   }, [file.mimeType, file.fileName]);
 
-  const previewUrl = buildDownloadPath(file.uuid, accessKey);
+  const previewUrl = buildPreviewPath(file.uuid, accessKey);
 
   const [textContent, setTextContent] = useState("");
   const [textLoading, setTextLoading] = useState(false);
@@ -91,6 +98,14 @@ export function FilePreviewCard({ file, accessKey }) {
           <div className="w-full h-full p-4 min-h-[500px] flex flex-col bg-black/5 dark:bg-black/20 w-full">
             <iframe
               src={`${previewUrl}#toolbar=0`}
+              className="w-full h-[500px] border-0 rounded-lg shadow-md bg-white"
+              title={file.fileName}
+            />
+          </div>
+        ) : isDoc ? (
+          <div className="w-full h-full p-4 min-h-[500px] flex flex-col bg-black/5 dark:bg-black/20 w-full">
+            <iframe
+              src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(previewUrl)}`}
               className="w-full h-[500px] border-0 rounded-lg shadow-md bg-white"
               title={file.fileName}
             />
