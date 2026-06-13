@@ -8,11 +8,10 @@ import { File } from "../models/file.model.js";
 import { AppError } from "../utils/appError.js";
 import { buildShareUrl, formatBytes, resolveExpiryDate } from "../utils/file.util.js";
 import { createDownloadAccessKey, verifyDownloadAccessKey } from "../utils/token.util.js";
-import { deleteCloudinaryFile } from "./cloudinary.service.js";
-import { uploadBufferToCloudinary } from "./cloudinary.service.js";
+import { unlink } from "node:fs/promises";
+import { deleteCloudinaryFile, uploadLocalFileToCloudinary } from "./cloudinary.service.js";
 import { sendMail } from "./email.service.js";
 import { buildShareEmailTemplate } from "./emailTemplate.service.js";
-import { generateQrCodeDataUrl } from "./qrCode.service.js";
 
 const SALT_ROUNDS = 10;
 
@@ -31,11 +30,17 @@ const ensureActiveFile = (file) => {
 export const createFileRecord = async ({ file, expiry, password }) => {
   const uuid = randomUUID();
   const shareUrl = buildShareUrl(env.frontendBaseUrl, uuid);
-  const qrCode = await generateQrCodeDataUrl(shareUrl);
+
   const hashedPassword = password
     ? await bcrypt.hash(String(password), SALT_ROUNDS)
     : null;
-  const uploadedAsset = await uploadBufferToCloudinary(file);
+  const uploadedAsset = await uploadLocalFileToCloudinary(file);
+
+  try {
+    await unlink(file.path);
+  } catch (error) {
+    console.error(`Failed to delete local temp file at ${file.path}`, error);
+  }
 
   const createdFile = await File.create({
     filename: uploadedAsset.display_name || file.originalname,
@@ -50,7 +55,6 @@ export const createFileRecord = async ({ file, expiry, password }) => {
     hasPassword: Boolean(hashedPassword),
     expiryOption: expiry,
     expiresAt: resolveExpiryDate(expiry),
-    qrCode,
   });
 
   return {
@@ -73,6 +77,7 @@ export const buildFileViewModel = (file) => ({
   expiryLabel: EXPIRY_LABELS[file.expiryOption] || "custom expiry",
   hasPassword: file.hasPassword,
   downloadCount: file.downloadCount,
+  mimeType: file.mimeType,
 });
 
 export const verifyFilePassword = async ({ uuid, password }) => {

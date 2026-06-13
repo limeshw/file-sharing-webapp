@@ -1,23 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { Download, Shield } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+import { useParams } from "react-router-dom";
 import { EmptyState } from "../components/empty-state.jsx";
 import { FileMetadataCard } from "../components/file-metadata-card.jsx";
 import { PasswordGateCard } from "../components/password-gate-card.jsx";
-import { Button } from "../components/ui/button.jsx";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card.jsx";
+import { FilePreviewCard } from "../components/file-preview-card.jsx";
 import { Skeleton } from "../components/ui/skeleton.jsx";
 import { useDownloadAccess } from "../context/download-access-context.jsx";
 import { getErrorMessage, isExpiredStatus } from "../lib/utils.js";
-import { fetchFileMeta } from "../services/file-service.js";
+import { fetchFileMeta, downloadFileToDevice } from "../services/file-service.js";
 
 export function FilePage() {
   const { uuid } = useParams();
-  const navigate = useNavigate();
   const { accessMap, saveAccess } = useDownloadAccess();
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -51,6 +51,40 @@ export function FilePage() {
 
   const existingAccess = useMemo(() => accessMap[uuid], [accessMap, uuid]);
 
+  async function startDownload() {
+    if (!file) return;
+
+    if (file.hasPassword && !existingAccess) {
+      toast.error("Please enter the password to download this file.");
+      return;
+    }
+
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
+    try {
+      await downloadFileToDevice({
+        uuid,
+        accessKey: existingAccess?.accessKey,
+        filename: file.fileName,
+      }, (event) => {
+        if (event.total) {
+          setDownloadProgress(Math.round((event.loaded * 100) / event.total));
+        }
+      });
+      toast.success("Download complete.");
+    } catch (error) {
+      toast.error(
+        getErrorMessage(
+          error,
+          "The file could not be downloaded automatically."
+        )
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
   if (status === "loading") {
     return (
       <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
@@ -83,12 +117,14 @@ export function FilePage() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
-      <div className="space-y-6">
+    <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr] h-full items-start">
+      <div className="space-y-6 sticky top-6">
         <FileMetadataCard
           file={file}
           hasAccess={Boolean(existingAccess)}
-          onDownload={() => navigate(`/files/download/${uuid}`)}
+          onDownload={startDownload}
+          isDownloading={isDownloading}
+          downloadProgress={downloadProgress}
         />
       </div>
 
@@ -98,29 +134,10 @@ export function FilePage() {
             uuid={uuid}
             onVerified={(accessPayload) => {
               saveAccess(uuid, accessPayload);
-              navigate(`/files/download/${uuid}`);
             }}
           />
         ) : (
-          <Card className="rounded-[32px]">
-            <CardHeader>
-              <div className="mb-3 flex size-12 items-center justify-center rounded-3xl bg-accent text-accent-foreground">
-                <Shield className="size-5" />
-              </div>
-              <CardTitle>Ready to download</CardTitle>
-              <CardDescription>
-                {file.hasPassword
-                  ? "Password has been verified for this browser session."
-                  : "This file can be downloaded directly."}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full" onClick={() => navigate(`/files/download/${uuid}`)}>
-                <Download className="size-4" />
-                Continue
-              </Button>
-            </CardContent>
-          </Card>
+          <FilePreviewCard file={file} accessKey={existingAccess?.accessKey} />
         )}
       </div>
     </div>

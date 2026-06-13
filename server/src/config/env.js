@@ -10,11 +10,8 @@ const requiredVariables = [
   "APP_BASE_URL",
 ];
 
-const requiredSmtpVariables = [
-  "SMTP_HOST",
-  "MAIL_USER",
-  "MAIL_PASSWORD",
-  "MAIL_FROM_NAME",
+const requiredEmailVariables = [
+  "RESEND_API_KEY",
   "MAIL_FROM_EMAIL",
 ];
 
@@ -25,7 +22,7 @@ for (const variable of requiredVariables) {
 }
 
 if (process.env.NODE_ENV === "production") {
-  for (const variable of requiredSmtpVariables) {
+  for (const variable of requiredEmailVariables) {
     if (!process.env[variable]) {
       throw new Error(`Missing required environment variable: ${variable}`);
     }
@@ -58,16 +55,11 @@ export const env = {
   jsonLimit: process.env.JSON_LIMIT || "1mb",
   uploadRateLimitMax: Number(process.env.UPLOAD_RATE_LIMIT_MAX || 20),
   shareRateLimitMax: Number(process.env.SHARE_RATE_LIMIT_MAX || 60),
-  smtp: {
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASSWORD,
-    fromName: process.env.MAIL_FROM_NAME,
+  email: {
+    provider: process.env.EMAIL_PROVIDER || "resend",
+    resendApiKey: process.env.RESEND_API_KEY,
+    fromName: process.env.MAIL_FROM_NAME || "Linkify",
     fromEmail: process.env.MAIL_FROM_EMAIL,
-    connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 10000),
-    greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 10000),
-    socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 15000),
   },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,

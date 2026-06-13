@@ -1,13 +1,20 @@
+import { Suspense, lazy } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AppShell } from "./components/app-shell.jsx";
 import { DownloadAccessProvider } from "./context/download-access-context.jsx";
 import { ThemeProvider } from "./context/theme-context.jsx";
-import { DashboardPage } from "./pages/dashboard-page.jsx";
-import { DownloadPage } from "./pages/download-page.jsx";
-import { FilePage } from "./pages/file-page.jsx";
 import { HomePage } from "./pages/home-page.jsx";
-import { NotFoundPage } from "./pages/not-found-page.jsx";
+
+const DashboardPage = lazy(() => import("./pages/dashboard-page.jsx").then(m => ({ default: m.DashboardPage })));
+const FilePage = lazy(() => import("./pages/file-page.jsx").then(m => ({ default: m.FilePage })));
+const NotFoundPage = lazy(() => import("./pages/not-found-page.jsx").then(m => ({ default: m.NotFoundPage })));
+
+const LoadingFallback = () => (
+  <div className="flex h-[50vh] items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+  </div>
+);
 
 const router = createBrowserRouter([
   {
@@ -15,10 +22,9 @@ const router = createBrowserRouter([
     element: <AppShell />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "dashboard", element: <DashboardPage /> },
-      { path: "files/:uuid", element: <FilePage /> },
-      { path: "files/download/:uuid", element: <DownloadPage /> },
-      { path: "*", element: <NotFoundPage /> },
+      { path: "dashboard", element: <Suspense fallback={<LoadingFallback />}><DashboardPage /></Suspense> },
+      { path: "files/:uuid", element: <Suspense fallback={<LoadingFallback />}><FilePage /></Suspense> },
+      { path: "*", element: <Suspense fallback={<LoadingFallback />}><NotFoundPage /></Suspense> },
     ],
   },
 ]);

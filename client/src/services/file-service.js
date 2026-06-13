@@ -35,14 +35,15 @@ export async function sendShareEmail(payload) {
   return response.data;
 }
 
-export async function downloadFileToDevice({ uuid, accessKey, filename }) {
-  const response = await fetch(buildDownloadPath(uuid, accessKey));
+export async function downloadFileToDevice({ uuid, accessKey, filename }, onProgress) {
+  const url = buildDownloadPath(uuid, accessKey);
+  
+  const response = await api.get(url, {
+    responseType: 'blob',
+    onDownloadProgress: onProgress
+  });
 
-  if (!response.ok) {
-    throw new Error("Unable to download file.");
-  }
-
-  const blob = await response.blob();
+  const blob = response.data;
   const objectUrl = window.URL.createObjectURL(blob);
   const anchor = document.createElement("a");
 

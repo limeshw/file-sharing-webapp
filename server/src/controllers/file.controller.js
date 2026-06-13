@@ -33,7 +33,6 @@ export const uploadFile = asyncHandler(async (req, res) => {
     shareUrl,
     downloadPageUrl: shareUrl,
     downloadUrl: `${shareUrl.replace("/files/", "/files/download/")}`,
-    qrCode: file.qrCode,
     expiresAt: file.expiresAt,
     hasPassword: file.hasPassword,
     originalName: file.originalName,

@@ -4,7 +4,9 @@ import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card.jsx";
 import { formatExpiry, getTimeRemainingLabel } from "../lib/utils.js";
 
-export function FileMetadataCard({ file, onDownload, hasAccess }) {
+import { Progress } from "./ui/progress.jsx";
+
+export function FileMetadataCard({ file, onDownload, hasAccess, isDownloading, downloadProgress }) {
   return (
     <Card className="rounded-[32px]">
       <CardHeader>
@@ -29,10 +31,26 @@ export function FileMetadataCard({ file, onDownload, hasAccess }) {
           />
         </div>
 
-        <Button className="mt-6 w-full sm:w-auto" onClick={onDownload}>
+        <Button 
+          className="mt-6 w-full sm:w-auto" 
+          onClick={onDownload} 
+          disabled={isDownloading || (file.hasPassword && !hasAccess)}
+        >
           <Download className="size-4" />
-          {file.hasPassword ? "Continue to download" : "Download now"}
+          {isDownloading 
+            ? `Downloading... ${downloadProgress}%` 
+            : (file.hasPassword && !hasAccess) 
+                ? "Unlock file to download" 
+                : "Download file"
+          }
         </Button>
+
+        {isDownloading ? (
+          <div className="mt-6 space-y-2 max-w-sm">
+            <Progress value={downloadProgress} className="h-2 w-full" />
+            <p className="text-xs text-muted text-right">{downloadProgress}% complete</p>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

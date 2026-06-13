@@ -60,10 +60,7 @@ const fileSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    qrCode: {
-      type: String,
-      required: true,
-    },
+
     downloadCount: {
       type: Number,
       default: 0,
@@ -85,7 +82,5 @@ const fileSchema = new mongoose.Schema(
     versionKey: false,
   },
 );
-
-fileSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const File = mongoose.model("File", fileSchema);

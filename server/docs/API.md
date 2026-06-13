@@ -729,13 +729,8 @@ SHARE_RATE_LIMIT_MAX=60       # Max share/verify requests per IP per hour
 VIEW_RATE_LIMIT_MAX=300       # Max view/download requests per IP per hour
 
 # ─── Email (SMTP) ─────────────────────────────────────────
-SMTP_HOST=smtp-relay.brevo.com
-SMTP_PORT=587
-SMTP_CONNECTION_TIMEOUT_MS=10000
-SMTP_GREETING_TIMEOUT_MS=10000
-SMTP_SOCKET_TIMEOUT_MS=15000
-MAIL_USER=your-smtp-user
-MAIL_PASSWORD=your-smtp-password
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_your_resend_api_key
 MAIL_FROM_NAME=Linkify
 MAIL_FROM_EMAIL=no-reply@example.com
 ```

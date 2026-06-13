@@ -14,9 +14,6 @@ export function DashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 4;
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
 
   if (!uploads.length) {
     return (
@@ -59,7 +56,10 @@ export function DashboardPage() {
                 type="text"
                 placeholder="Search files..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="pl-9 rounded-2xl"
               />
             </div>

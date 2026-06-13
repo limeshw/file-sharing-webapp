@@ -1,8 +1,8 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 import { env } from "../config/env.js";
 
-let transporter;
+let resendClient;
 
 const maskEmail = (value = "") => {
   const [localPart = "", domain = ""] = String(value).split("@");
@@ -27,79 +27,51 @@ const logEmailEvent = (eventName, details = {}) => {
 
 export const isSmtpConfigured = () =>
   Boolean(
-    env.smtp.host &&
-      env.smtp.user &&
-      env.smtp.pass &&
-      env.smtp.fromName &&
-      env.smtp.fromEmail,
+    env.email.provider === "resend" &&
+      env.email.resendApiKey &&
+      env.email.fromEmail,
   );
 
-const getTransporter = () => {
-  if (transporter) {
-    return transporter;
+const getEmailClient = () => {
+  if (resendClient) {
+    return resendClient;
   }
 
   if (!isSmtpConfigured()) {
     return null;
   }
 
-  transporter = nodemailer.createTransport({
-    host: env.smtp.host,
-    port: env.smtp.port,
-    secure: env.smtp.port === 465,
-    auth: {
-      user: env.smtp.user,
-      pass: env.smtp.pass,
-    },
-    connectionTimeout: env.smtp.connectionTimeout,
-    greetingTimeout: env.smtp.greetingTimeout,
-    socketTimeout: env.smtp.socketTimeout,
-  });
+  resendClient = new Resend(env.email.resendApiKey);
 
-  return transporter;
+  return resendClient;
 };
 
 export const verifyEmailTransport = async () => {
-  const activeTransporter = getTransporter();
+  const activeProvider = env.email.provider;
+  const activeClient = getEmailClient();
 
-  if (!activeTransporter) {
+  if (!activeClient) {
     if (env.nodeEnv === "production") {
-      throw new Error("SMTP is not configured.");
+      throw new Error("Email provider is not configured.");
     }
 
-    console.warn("SMTP is not configured. Email sending is disabled in this environment.");
+    console.warn("Email provider is not configured. Email sending is disabled in this environment.");
     return false;
   }
 
-  const startedAt = Date.now();
+  logEmailEvent("email_provider_ready", {
+    provider: activeProvider,
+    fromEmail: env.email.fromEmail,
+  });
 
-  try {
-    await activeTransporter.verify();
-    logEmailEvent("email_transport_verified", {
-      smtpHost: env.smtp.host,
-      smtpPort: env.smtp.port,
-      durationMs: Date.now() - startedAt,
-    });
-    return true;
-  } catch (error) {
-    logEmailEvent("email_transport_verify_failed", {
-      smtpHost: env.smtp.host,
-      smtpPort: env.smtp.port,
-      durationMs: Date.now() - startedAt,
-      errorCode: error?.code || null,
-      errorCommand: error?.command || null,
-      responseCode: error?.responseCode || null,
-      errorMessage: error?.message || "Unknown SMTP verification error",
-    });
-    throw error;
-  }
+  return true;
 };
 
 export const sendMail = async ({ to, subject, text, html }) => {
-  const activeTransporter = getTransporter();
+  const activeClient = getEmailClient();
 
-  if (!activeTransporter) {
-    throw new Error("SMTP is not configured.");
+  if (!activeClient) {
+    throw new Error("Email provider is not configured.");
   }
 
   const startedAt = Date.now();
@@ -107,39 +79,40 @@ export const sendMail = async ({ to, subject, text, html }) => {
   logEmailEvent("email_send_started", {
     to: maskEmail(to),
     subject,
-    smtpHost: env.smtp.host,
-    smtpPort: env.smtp.port,
+    provider: env.email.provider,
   });
 
   try {
-    const result = await activeTransporter.sendMail({
-      from: `"${env.smtp.fromName}" <${env.smtp.fromEmail}>`,
+    const { data, error } = await activeClient.emails.send({
+      from: `${env.email.fromName} <${env.email.fromEmail}>`,
       to,
       subject,
-      text,
+      text: text || undefined,
       html,
     });
+
+    if (error) {
+      throw error;
+    }
 
     logEmailEvent("email_send_succeeded", {
       to: maskEmail(to),
       subject,
+      provider: env.email.provider,
       durationMs: Date.now() - startedAt,
-      messageId: result?.messageId || null,
-      accepted: result?.accepted || [],
-      rejected: result?.rejected || [],
-      response: result?.response || null,
+      messageId: data?.id || null,
     });
 
-    return result;
+    return data;
   } catch (error) {
     logEmailEvent("email_send_failed", {
       to: maskEmail(to),
       subject,
+      provider: env.email.provider,
       durationMs: Date.now() - startedAt,
       errorCode: error?.code || null,
-      errorCommand: error?.command || null,
-      responseCode: error?.responseCode || null,
-      errorMessage: error?.message || "Unknown SMTP error",
+      responseCode: error?.statusCode || error?.response?.status || null,
+      errorMessage: error?.message || "Unknown email provider error",
     });
     throw error;
   }

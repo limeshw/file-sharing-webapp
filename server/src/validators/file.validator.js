@@ -35,12 +35,21 @@ export const validatePasswordPayload = ({ uuid, password }) => {
   }
 };
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const validateEmailPayload = ({ uuid, emailTo, emailFrom }) => {
   validateUuid(uuid);
 
   if (!emailTo || !emailFrom) {
     throw new AppError(
       "uuid, emailTo, and emailFrom are required.",
+      HTTP_STATUS.BAD_REQUEST,
+    );
+  }
+
+  if (!EMAIL_REGEX.test(emailTo) || !EMAIL_REGEX.test(emailFrom)) {
+    throw new AppError(
+      "Valid email addresses are required.",
       HTTP_STATUS.BAD_REQUEST,
     );
   }

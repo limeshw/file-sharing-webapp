@@ -1,25 +1,31 @@
 import { useEffect, useState } from "react";
 import { DownloadCloud, ShieldAlert } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { EmptyState } from "../components/empty-state.jsx";
 import { PasswordGateCard } from "../components/password-gate-card.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card.jsx";
 import { Skeleton } from "../components/ui/skeleton.jsx";
+import { Progress } from "../components/ui/progress.jsx";
 import { useDownloadAccess } from "../context/download-access-context.jsx";
 import { getErrorMessage, isExpiredStatus } from "../lib/utils.js";
 import { downloadFileToDevice, fetchFileMeta } from "../services/file-service.js";
 
 export function DownloadPage() {
   const { uuid } = useParams();
+  const location = useLocation();
+  const preloadedFile = location.state?.file;
   const { accessMap, saveAccess, clearAccess } = useDownloadAccess();
-  const [file, setFile] = useState(null);
-  const [status, setStatus] = useState("loading");
+  const [file, setFile] = useState(preloadedFile || null);
+  const [status, setStatus] = useState(preloadedFile ? "ready" : "loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   useEffect(() => {
+    if (preloadedFile) return;
+
     let isMounted = true;
 
     async function loadFile() {
@@ -45,7 +51,7 @@ export function DownloadPage() {
     return () => {
       isMounted = false;
     };
-  }, [uuid]);
+  }, [uuid, preloadedFile]);
 
   const access = accessMap[uuid];
 
@@ -55,14 +61,19 @@ export function DownloadPage() {
     }
 
     setIsDownloading(true);
+    setDownloadProgress(0);
 
     try {
       await downloadFileToDevice({
         uuid,
         accessKey: access?.accessKey,
         filename: file.fileName,
+      }, (event) => {
+        if (event.total) {
+          setDownloadProgress(Math.round((event.loaded * 100) / event.total));
+        }
       });
-      toast.success("Download started.");
+      toast.success("Download complete.");
     } catch (error) {
       toast.error(
         getErrorMessage(
@@ -141,14 +152,21 @@ export function DownloadPage() {
         <div className="mt-6 flex flex-wrap gap-3">
           <Button type="button" onClick={startDownload} disabled={isDownloading}>
             <DownloadCloud className="size-4" />
-            {isDownloading ? "Preparing download..." : "Start download"}
+            {isDownloading ? `Downloading... ${downloadProgress}%` : "Start download"}
           </Button>
           {file.hasPassword ? (
-            <Button type="button" variant="secondary" onClick={() => clearAccess(uuid)}>
+            <Button type="button" variant="secondary" onClick={() => clearAccess(uuid)} disabled={isDownloading}>
               Clear password access
             </Button>
           ) : null}
         </div>
+        
+        {isDownloading ? (
+          <div className="mt-6 space-y-2">
+            <Progress value={downloadProgress} className="h-2 w-full" />
+            <p className="text-xs text-muted text-right">{downloadProgress}% complete</p>
+          </div>
+        ) : null}
       </div>
     </Card>
   );

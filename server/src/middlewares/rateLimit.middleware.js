@@ -25,6 +25,10 @@ export const viewRateLimiter = rateLimit({
 
 export const shareRateLimiter = rateLimit({
   ...baseConfig,
-  windowMs: 60 * 60 * 1000,
-  max: env.shareRateLimitMax,
+  windowMs: 15 * 60 * 1000,
+  max: Number(process.env.SHARE_RATE_LIMIT_MAX || 5),
+  message: {
+    success: false,
+    message: "You have sent too many emails recently. Please wait before sharing again.",
+  },
 });

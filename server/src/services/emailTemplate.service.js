@@ -1,3 +1,16 @@
+const sanitizeHtml = (str) => {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[&<>'"]/g, 
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+};
+
 export const buildShareEmailTemplate = ({
   emailFrom,
   downloadLink,
@@ -14,7 +27,7 @@ export const buildShareEmailTemplate = ({
     <body style="font-family: Arial, sans-serif; background:#f4f7fb; padding:24px; color:#1f2937;">
       <div style="max-width:640px; margin:0 auto; background:#ffffff; border-radius:16px; padding:32px; box-shadow:0 10px 30px rgba(15,23,42,0.08);">
         <h1 style="margin-top:0; color:#111827;">Linkify File Share</h1>
-        <p><strong>${emailFrom}</strong> shared a file with you.</p>
+        <p><strong>${sanitizeHtml(emailFrom)}</strong> shared a file with you.</p>
         <p>Size: ${size}</p>
         <p>Expires in: ${expires}</p>
         <p style="margin:24px 0;">

@@ -33,31 +33,16 @@ export const downloadFile = asyncHandler(async (req, res) => {
     accessKey: req.query.accessKey,
   });
 
-  const upstreamResponse = await fetch(file.url);
+  let attachmentUrl = file.url;
 
-  if (!upstreamResponse.ok || !upstreamResponse.body) {
-    throw new AppError(
-      "Unable to download file from storage.",
-      HTTP_STATUS.INTERNAL_SERVER_ERROR,
+  if (file.resourceType !== "raw") {
+    attachmentUrl = file.url.replace(
+      "/upload/",
+      `/upload/fl_attachment/`
     );
   }
 
-  const safeFilename = encodeURIComponent(file.originalName);
-
-  res.setHeader("Content-Type", file.mimeType || "application/octet-stream");
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="${file.originalName}"; filename*=UTF-8''${safeFilename}`,
-  );
-
-  const contentLength = upstreamResponse.headers.get("content-length");
-  if (contentLength) {
-    res.setHeader("Content-Length", contentLength);
-  }
-
-  res.setHeader("Cache-Control", "no-store");
-
-  Readable.fromWeb(upstreamResponse.body).pipe(res);
+  res.redirect(attachmentUrl);
 });
 
 export const fileInfo = asyncHandler(async (req, res) => {

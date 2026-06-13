@@ -62,8 +62,12 @@ export function getTimeRemainingLabel(dateValue) {
 }
 
 export function getErrorMessage(error, fallback = "Something went wrong.") {
-  if (error?.message === "Network Error") {
-    return "Network error: the browser could not reach the backend. If you are on local dev, this is usually a backend CORS issue or the backend URL is not reachable.";
+  if (error?.response?.status === 413) {
+    return "The file is too large for the server to process. Please try a smaller file.";
+  }
+
+  if (error?.message === "Network Error" || error?.code === "ECONNABORTED") {
+    return "Network connection lost or server unreachable. Please check your connection and try again.";
   }
 
   return error?.response?.data?.message || error?.message || fallback;

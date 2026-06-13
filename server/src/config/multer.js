@@ -1,4 +1,7 @@
 import multer from "multer";
+import os from "node:os";
+import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { FILE_INPUT_FIELD, MAX_FILE_SIZE } from "../constants/file.constants.js";
 import { HTTP_STATUS } from "../constants/http.constants.js";
 import { AppError } from "../utils/appError.js";
@@ -19,7 +22,12 @@ const fileFilter = (req, file, cb) => {
 };
 
 export const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: multer.diskStorage({
+    destination: os.tmpdir(),
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}-${randomUUID()}${path.extname(file.originalname)}`);
+    }
+  }),
   fileFilter,
   limits: {
     fileSize: MAX_FILE_SIZE,
