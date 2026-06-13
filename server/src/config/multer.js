@@ -11,7 +11,7 @@ const fileFilter = (req, file, cb) => {
   if (!isAllowedFile(file)) {
     cb(
       new AppError(
-        "Invalid file type. Only PDF, images, DOC, DOCX, and ZIP files are allowed.",
+        "Invalid file type. Allowed formats: PDF, images, documents, zip, and common code/text files.",
         HTTP_STATUS.UNSUPPORTED_MEDIA_TYPE,
       ),
     );

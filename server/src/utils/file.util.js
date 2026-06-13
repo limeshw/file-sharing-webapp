@@ -38,7 +38,7 @@ export const ensureFileUploadIsValid = (file) => {
   }
 
   if (!isAllowedFile(file)) {
-    return "Invalid file type. Only PDF, images, DOC, DOCX, and ZIP files are allowed.";
+    return "Invalid file type. Allowed formats: PDF, images, documents, zip, and common code/text files.";
   }
 
   return null;

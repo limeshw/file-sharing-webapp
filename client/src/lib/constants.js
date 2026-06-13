@@ -13,6 +13,17 @@ export const ALLOWED_FORMATS = [
   "DOC",
   "DOCX",
   "ZIP",
+  "TXT",
+  "JS",
+  "PY",
+  "JSON",
+  "CSS",
+  "MD",
+  "CPP",
+  "XML",
+  "GO",
+  "HTML",
+  "JAVA",
 ];
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
