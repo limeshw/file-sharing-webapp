@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Copy, ExternalLink, ShieldCheck, TimerReset } from "lucide-react";
+import { Copy, ExternalLink, ShieldCheck, TimerReset, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { buildFrontendSharePath } from "../services/file-service.js";
 import { formatBytes, formatExpiry } from "../lib/utils.js";
@@ -11,6 +12,7 @@ import { ShareEmailForm } from "./share-email-form.jsx";
 
 export function UploadResultPanel({ result }) {
   const { copy } = useCopyToClipboard();
+  const [showQr, setShowQr] = useState(false);
 
   async function handleCopy(value) {
     await copy(value);
@@ -69,6 +71,16 @@ export function UploadResultPanel({ result }) {
                   <Copy className="size-4" />
                   Copy link
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  className={showQr ? "bg-accent text-accent-foreground border-primary/45" : ""}
+                  onClick={() => setShowQr(!showQr)}
+                >
+                  <QrCode className="size-4" />
+                  {showQr ? "Hide QR" : "QR Code"}
+                </Button>
                 <Button asChild size="sm">
                   <Link to={`/files/${result.uuid}`}>
                     Open link
@@ -76,6 +88,19 @@ export function UploadResultPanel({ result }) {
                   </Link>
                 </Button>
               </div>
+              {showQr && (
+                <div className="mt-4 flex flex-col items-center justify-center p-4 bg-background/50 border border-border/80 rounded-lg shadow-inner animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="p-2.5 bg-white rounded-lg shadow border border-slate-200">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=4f46e5&data=${encodeURIComponent(buildFrontendSharePath(result.uuid))}`}
+                      alt="File Share QR Code"
+                      className="w-[150px] h-[150px]"
+                      loading="lazy"
+                    />
+                  </div>
+                  <span className="text-[10px] text-muted-foreground mt-2.5 font-semibold tracking-wide uppercase">Scan to open on mobile</span>
+                </div>
+              )}
             </div>
 
             <ShareEmailForm uuid={result.uuid} compact />
