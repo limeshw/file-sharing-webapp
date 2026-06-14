@@ -73,8 +73,8 @@ export function FilePreviewCard({ file, accessKey }) {
   }, [textContent, file.fileName, file.mimeType]);
 
   return (
-    <Card className="rounded-xl overflow-hidden bg-secondary/10 flex flex-col h-full border border-border/50 shadow">
-      <CardContent className="p-0 flex-grow flex items-center justify-center min-h-[450px]">
+    <Card className="rounded-xl overflow-hidden bg-secondary/10 flex flex-col h-full border border-border/50 shadow min-w-0">
+      <CardContent className="p-0 flex-grow flex items-center justify-center min-h-[450px] min-w-0 w-full">
         {isImage ? (
           <div className="w-full h-full p-4 flex items-center justify-center bg-black/5 dark:bg-black/20">
             <img
@@ -111,7 +111,7 @@ export function FilePreviewCard({ file, accessKey }) {
             />
           </div>
         ) : isText ? (
-          <div className="w-full h-full p-4 flex flex-col bg-black/5 dark:bg-black/20 min-h-[450px] justify-start items-stretch w-full">
+          <div className="w-full h-full p-4 flex flex-col bg-black/5 dark:bg-black/20 min-h-[450px] justify-start items-stretch min-w-0">
             {textLoading ? (
               <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground gap-3 min-h-[300px]">
                 <Loader2 className="size-8 text-primary animate-spin" />
@@ -125,13 +125,13 @@ export function FilePreviewCard({ file, accessKey }) {
                 <p className="text-sm font-medium text-destructive">{textError}</p>
               </div>
             ) : (
-              <div className="w-full text-left bg-slate-950 dark:bg-slate-900 border border-slate-800/80 rounded-lg shadow-inner overflow-hidden flex flex-col max-h-[500px]">
+              <div className="w-full text-left bg-slate-950 dark:bg-slate-900 border border-slate-800/80 rounded-lg shadow-inner overflow-hidden flex flex-col max-h-[500px] min-w-0">
                 {/* Header for text/code viewer */}
                 <div className="flex items-center justify-between px-4 py-2 bg-slate-900 dark:bg-slate-800/60 border-b border-slate-800 text-[11px] text-slate-400 font-mono select-none">
                   <span className="truncate pr-4">{file.fileName}</span>
                   <span className="uppercase text-slate-500 shrink-0">{file.mimeType?.split("/")[1] || "text"}</span>
                 </div>
-                <pre className="p-4 overflow-auto text-xs font-mono leading-relaxed text-slate-100 select-text max-h-[450px]">
+                <pre className="p-4 overflow-auto text-xs font-mono leading-relaxed text-slate-100 select-text max-h-[450px] min-w-0 w-full">
                   <code>{displayContent}</code>
                 </pre>
               </div>

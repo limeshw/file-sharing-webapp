@@ -7,7 +7,7 @@ import { Progress } from "./ui/progress.jsx";
 
 export function FileMetadataCard({ file, onDownload, hasAccess, isDownloading, downloadProgress }) {
   return (
-    <Card className="rounded-xl border border-border bg-card/40 shadow @container">
+    <Card className="rounded-xl border border-border bg-card/40 shadow">
       <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={file.hasPassword ? "destructive" : "default"}>
@@ -21,7 +21,7 @@ export function FileMetadataCard({ file, onDownload, hasAccess, isDownloading, d
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 grid-cols-1 @sm:grid-cols-2 @xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           <InfoPill Icon={FileText} label="File size" value={file.fileSize} />
           <InfoPill Icon={CalendarClock} label="Expires" value={formatExpiry(file.expiresAt)} />
           <InfoPill Icon={Radar} label="Downloads" value={`${file.downloadCount}`} />

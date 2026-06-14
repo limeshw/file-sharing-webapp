@@ -135,8 +135,8 @@ export function FilePage() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-[1fr_0.92fr] h-full items-start">
-      <div className="space-y-6 lg:sticky lg:top-6">
+    <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] h-full items-start">
+      <div className="space-y-6 lg:sticky lg:top-6 min-w-0">
         <FileMetadataCard
           file={file}
           hasAccess={Boolean(existingAccess)}
@@ -146,7 +146,7 @@ export function FilePage() {
         />
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 min-w-0">
         {file.hasPassword && !existingAccess ? (
           <PasswordGateCard
             uuid={uuid}
