@@ -1,23 +1,44 @@
-import { FILE_INPUT_NAME } from "../lib/constants.js";
+import axios from "axios";
 import { api, buildBackendUrl } from "./api.js";
 
+/**
+ * Phase 2 upload flow:
+ *   1. POST metadata → backend returns presigned R2 PUT URL + key
+ *   2. PUT file bytes directly to R2 (progress reported here)
+ *   3. POST key + metadata → backend creates MongoDB record, returns share link
+ *
+ * The function signature is identical to the Phase 1 version so upload-form.jsx
+ * requires no changes.
+ */
 export async function uploadFile(payload, onUploadProgress) {
-  const formData = new FormData();
-  formData.append(FILE_INPUT_NAME, payload.file);
-  formData.append("expiry", payload.expiry);
+  // Step 1 — Get presigned PUT URL from backend
+  const prepareRes = await api.post("/api/files/prepare-upload", {
+    filename: payload.file.name,
+    mimeType: payload.file.type,
+    size: payload.file.size,
+    expiry: payload.expiry,
+    ...(payload.password ? { password: payload.password } : {}),
+  });
 
-  if (payload.password) {
-    formData.append("password", payload.password);
-  }
+  const { uploadUrl, key } = prepareRes.data.data;
 
-  const response = await api.post("/api/files/upload", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+  // Step 2 — PUT file directly to R2 (bypasses backend, real progress events)
+  await axios.put(uploadUrl, payload.file, {
+    headers: { "Content-Type": payload.file.type },
     onUploadProgress,
   });
 
-  return response.data;
+  // Step 3 — Tell backend to create the MongoDB record
+  const confirmRes = await api.post("/api/files/confirm-upload", {
+    key,
+    filename: payload.file.name,
+    mimeType: payload.file.type,
+    size: payload.file.size,
+    expiry: payload.expiry,
+    ...(payload.password ? { password: payload.password } : {}),
+  });
+
+  return confirmRes.data;
 }
 
 export async function fetchFileMeta(uuid) {
@@ -37,22 +58,23 @@ export async function sendShareEmail(payload) {
 
 export async function downloadFileToDevice({ uuid, accessKey, filename }, onProgress) {
   const url = buildDownloadPath(uuid, accessKey);
-  
-  const response = await api.get(url, {
-    responseType: 'blob',
-    onDownloadProgress: onProgress
-  });
 
-  const blob = response.data;
-  const objectUrl = window.URL.createObjectURL(blob);
+  // Get the presigned R2 URL from the backend (JSON response)
+  const response = await api.get(url);
+  const presignedUrl = response.data?.data?.downloadUrl;
+
+  if (!presignedUrl) {
+    throw new Error("Failed to get download URL from server.");
+  }
+
+  // Trigger a direct browser navigation — not an XHR request.
+  // This bypasses CORS entirely since browser navigations are not subject to CORS.
   const anchor = document.createElement("a");
-
-  anchor.href = objectUrl;
+  anchor.href = presignedUrl;
   anchor.download = filename || "download";
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  window.URL.revokeObjectURL(objectUrl);
 }
 
 export function buildFrontendSharePath(uuid) {

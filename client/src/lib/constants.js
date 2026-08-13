@@ -26,7 +26,7 @@ export const ALLOWED_FORMATS = [
   "JAVA",
 ];
 
-export const MAX_FILE_SIZE = 10 * 1024 * 1024;
+export const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 export const FILE_INPUT_NAME = "myfile";
 

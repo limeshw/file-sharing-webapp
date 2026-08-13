@@ -1,4 +1,4 @@
-import multer from "multer";
+
 import mongoose from "mongoose";
 
 import { HTTP_STATUS } from "../constants/http.constants.js";
@@ -12,32 +12,12 @@ const resolveError = (error) => {
     };
   }
 
-  if (error instanceof multer.MulterError) {
-    if (error.code === "LIMIT_FILE_SIZE") {
-      return {
-        statusCode: HTTP_STATUS.PAYLOAD_TOO_LARGE,
-        message: "File size exceeds 10MB limit.",
-      };
-    }
-
-    return {
-      statusCode: HTTP_STATUS.BAD_REQUEST,
-      message: error.message,
-    };
-  }
 
   if (error instanceof mongoose.Error.ValidationError) {
     return {
       statusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
       message: "Validation failed.",
       details: Object.values(error.errors).map((item) => item.message),
-    };
-  }
-
-  if (error.http_code) {
-    return {
-      statusCode: error.http_code,
-      message: error.message || "Cloudinary request failed.",
     };
   }
 

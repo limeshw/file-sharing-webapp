@@ -4,9 +4,10 @@ dotenv.config();
 
 const requiredVariables = [
   "MONGO_CONNECTION_URL",
-  "CLOUDINARY_CLOUD_NAME",
-  "CLOUDINARY_API_KEY",
-  "CLOUDINARY_API_SECRET",
+  "R2_ACCOUNT_ID",
+  "R2_ACCESS_KEY_ID",
+  "R2_SECRET_ACCESS_KEY",
+  "R2_BUCKET_NAME",
   "APP_BASE_URL",
 ];
 
@@ -47,7 +48,6 @@ export const env = {
   appSecret:
     process.env.APP_SECRET ||
     (process.env.NODE_ENV === "production" ? "" : fallbackAppSecret),
-  uploadFolder: process.env.CLOUDINARY_FOLDER || "linkify/files",
   allowedClients: (process.env.ALLOWED_CLIENTS || "")
     .split(",")
     .map((origin) => origin.trim())
@@ -60,10 +60,12 @@ export const env = {
     senderEmail: process.env.BREVO_SENDER_EMAIL,
     senderName: process.env.BREVO_SENDER_NAME || "Linkify",
   },
-  cloudinary: {
-    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-    apiKey: process.env.CLOUDINARY_API_KEY,
-    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  r2: {
+    accountId: process.env.R2_ACCOUNT_ID,
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    bucketName: process.env.R2_BUCKET_NAME,
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
   },
 };
 

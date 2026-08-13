@@ -56,7 +56,7 @@ export const resolveExpiryDate = (expiryOption) => {
 
 export const buildShareUrl = (baseUrl, uuid) => `${baseUrl}/files/${uuid}`;
 
-export const createCloudinaryPublicId = (originalname) =>
+export const createR2ObjectKey = (originalname) =>
   `${Date.now()}-${randomUUID()}-${sanitizeFilename(originalname)}`;
 
 export const formatBytes = (bytes = 0) => {

@@ -79,17 +79,13 @@ export function DownloadPage() {
         uuid,
         accessKey: access?.accessKey,
         filename: file.fileName,
-      }, (event) => {
-        if (event.total) {
-          setDownloadProgress(Math.round((event.loaded * 100) / event.total));
-        }
       });
-      toast.success("Download complete.");
+      toast.success("Download started. Check your browser downloads.");
     } catch (error) {
       toast.error(
         getErrorMessage(
           error,
-          "The file could not be saved automatically. This may depend on the storage provider response headers.",
+          "The file could not be downloaded. Please try again.",
         ),
       );
     } finally {

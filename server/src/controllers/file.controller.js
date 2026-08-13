@@ -3,29 +3,61 @@ import { AppError } from "../utils/appError.js";
 import { sendSuccess } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
-  createFileRecord,
+  createFileRecordFromKey,
   sendShareEmail,
   verifyFilePassword,
 } from "../services/file.service.js";
-import { ensureFileUploadIsValid } from "../utils/file.util.js";
+import { getR2PresignedUploadUrl } from "../services/r2.service.js";
+import { createR2ObjectKey } from "../utils/file.util.js";
 import {
+  validateConfirmUploadPayload,
   validateEmailPayload,
   validatePasswordPayload,
-  validateUploadPayload,
+  validatePrepareUploadPayload,
 } from "../validators/file.validator.js";
 
-export const uploadFile = asyncHandler(async (req, res) => {
-  validateUploadPayload(req.body);
-  const uploadValidationError = ensureFileUploadIsValid(req.file);
+// Presigned PUT URL TTL exposed to the frontend so it can show a deadline.
+const UPLOAD_URL_TTL = 300;
 
-  if (uploadValidationError) {
-    throw new AppError(uploadValidationError, HTTP_STATUS.BAD_REQUEST);
-  }
+/**
+ * Step 1 of the upload flow.
+ * Validates file metadata, generates an R2 object key and a presigned PUT URL.
+ * The frontend uses the URL to PUT the file directly to R2.
+ * No file bytes pass through this server.
+ */
+export const prepareUpload = asyncHandler(async (req, res) => {
+  const { filename, mimeType, size, expiry, password } = req.body;
 
-  const { file, shareUrl } = await createFileRecord({
-    file: req.file,
-    expiry: req.body.expiry,
-    password: req.body.password,
+  validatePrepareUploadPayload({ filename, mimeType, size: Number(size), expiry, password });
+
+  const key = createR2ObjectKey(filename);
+  const uploadUrl = await getR2PresignedUploadUrl(key, mimeType);
+
+  sendSuccess(res, HTTP_STATUS.OK, "Upload URL generated", {
+    uploadUrl,
+    key,
+    expiresIn: UPLOAD_URL_TTL,
+  });
+});
+
+/**
+ * Step 2 of the upload flow.
+ * Called after the frontend has successfully PUT the file to R2.
+ * Creates the MongoDB file record and returns the share link.
+ * Response shape is identical to the old single-step upload endpoint.
+ */
+export const confirmUpload = asyncHandler(async (req, res) => {
+  const { key, filename, mimeType, size, expiry, password } = req.body;
+
+  validateConfirmUploadPayload({ key, filename, mimeType, size: Number(size), expiry, password });
+
+  const { file, shareUrl } = await createFileRecordFromKey({
+    key,
+    filename,
+    mimeType,
+    size: Number(size),
+    expiry,
+    password,
   });
 
   sendSuccess(res, HTTP_STATUS.CREATED, "File uploaded successfully", {

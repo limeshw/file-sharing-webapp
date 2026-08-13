@@ -1,11 +1,11 @@
 import { Router } from "express";
 
 import {
+  confirmUpload,
+  prepareUpload,
   shareFileByEmail,
-  uploadFile,
   verifyPassword,
 } from "../controllers/file.controller.js";
-import { singleFileUploadMiddleware } from "../config/multer.js";
 import {
   shareRateLimiter,
   uploadRateLimiter,
@@ -13,11 +13,14 @@ import {
 
 const router = Router();
 
-router.post("/upload", uploadRateLimiter, singleFileUploadMiddleware, uploadFile);
+// Step 1: validate metadata → receive presigned R2 PUT URL + object key
+router.post("/prepare-upload", uploadRateLimiter, prepareUpload);
+
+// Step 2: frontend PUT file to R2 → confirm to create MongoDB record
+router.post("/confirm-upload", uploadRateLimiter, confirmUpload);
+
 router.post("/verify-password", shareRateLimiter, verifyPassword);
 // Send file share link via Brevo email REST API (rate-limited)
 router.post("/send", shareRateLimiter, shareFileByEmail);
-
-router.post("/", uploadRateLimiter, singleFileUploadMiddleware, uploadFile);
 
 export default router;

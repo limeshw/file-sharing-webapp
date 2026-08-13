@@ -11,14 +11,16 @@
   "keywords": [
     "linkify",
     "express",
-    "cloudinary",
+    "cloudflare-r2",
     "mongodb",
     "file-sharing"
   ],
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1109.0",
+    "@aws-sdk/s3-request-presigner": "^3.1109.0",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
-    "cloudinary": "^1.41.3",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -28,9 +30,7 @@
     "helmet": "^8.1.0",
     "mongoose": "^9.1.1",
     "morgan": "^1.10.1",
-    "multer": "^2.0.2",
     "node-cron": "^4.2.1",
-    "axios": "^1.7.9",
     "qrcode": "^1.5.4"
   }
 }

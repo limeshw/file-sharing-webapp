@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { getFileByUuid, resolveDownload, resolvePreview, buildFileViewModel } from "../services/file.service.js";
 import { validateUuid } from "../validators/file.validator.js";
 import { AppError } from "../utils/appError.js";
-import { Readable } from "node:stream";
+import { getR2PresignedDownloadUrl, getR2PresignedPreviewUrl } from "../services/r2.service.js";
 
 export const showFilePage = asyncHandler(async (req, res) => {
   try {
@@ -33,16 +33,13 @@ export const downloadFile = asyncHandler(async (req, res) => {
     accessKey: req.query.accessKey,
   });
 
-  let attachmentUrl = file.url;
+  const presignedUrl = await getR2PresignedDownloadUrl(file.public_id, file.originalName);
 
-  if (file.resourceType !== "raw") {
-    attachmentUrl = file.url.replace(
-      "/upload/",
-      `/upload/fl_attachment/`
-    );
-  }
-
-  res.redirect(attachmentUrl);
+  res.status(HTTP_STATUS.OK).json({
+    success: true,
+    message: "Download URL generated",
+    data: { downloadUrl: presignedUrl },
+  });
 });
 
 export const fileInfo = asyncHandler(async (req, res) => {
@@ -63,5 +60,7 @@ export const previewFile = asyncHandler(async (req, res) => {
     accessKey: req.query.accessKey,
   });
 
-  res.redirect(file.url);
+  const presignedUrl = await getR2PresignedPreviewUrl(file.public_id);
+
+  res.redirect(presignedUrl);
 });

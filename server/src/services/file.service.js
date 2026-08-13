@@ -8,8 +8,7 @@ import { File } from "../models/file.model.js";
 import { AppError } from "../utils/appError.js";
 import { buildShareUrl, formatBytes, resolveExpiryDate } from "../utils/file.util.js";
 import { createDownloadAccessKey, verifyDownloadAccessKey } from "../utils/token.util.js";
-import { unlink } from "node:fs/promises";
-import { deleteCloudinaryFile, uploadLocalFileToCloudinary } from "./cloudinary.service.js";
+import { deleteR2File } from "./r2.service.js";
 import { sendFileShareEmail } from "./email.service.js";
 
 const SALT_ROUNDS = 10;
@@ -26,40 +25,34 @@ const ensureActiveFile = (file) => {
   return file;
 };
 
-export const createFileRecord = async ({ file, expiry, password }) => {
+/**
+ * Creates a MongoDB file record for a file already uploaded directly to R2.
+ * Called by confirmUpload after the browser has PUT the file to R2.
+ */
+export const createFileRecordFromKey = async ({ key, filename, mimeType, size, expiry, password }) => {
   const uuid = randomUUID();
   const shareUrl = buildShareUrl(env.frontendBaseUrl, uuid);
 
   const hashedPassword = password
     ? await bcrypt.hash(String(password), SALT_ROUNDS)
     : null;
-  const uploadedAsset = await uploadLocalFileToCloudinary(file);
-
-  try {
-    await unlink(file.path);
-  } catch (error) {
-    console.error(`Failed to delete local temp file at ${file.path}`, error);
-  }
 
   const createdFile = await File.create({
-    filename: uploadedAsset.display_name || file.originalname,
-    originalName: file.originalname,
+    filename,
+    originalName: filename,
     uuid,
-    url: uploadedAsset.secure_url,
-    public_id: uploadedAsset.public_id,
-    resourceType: uploadedAsset.resource_type,
-    size: file.size,
-    mimeType: file.mimetype,
+    url: key,
+    public_id: key,
+    resourceType: "raw",
+    size,
+    mimeType,
     password: hashedPassword,
     hasPassword: Boolean(hashedPassword),
     expiryOption: expiry,
     expiresAt: resolveExpiryDate(expiry),
   });
 
-  return {
-    file: createdFile,
-    shareUrl,
-  };
+  return { file: createdFile, shareUrl };
 };
 
 export const getFileByUuid = async (uuid) => {
@@ -154,9 +147,9 @@ export const sendShareEmail = async ({ uuid, emailTo, emailFrom }) => {
 
 export const deleteExpiredFileRecord = async (file) => {
   try {
-    await deleteCloudinaryFile(file.public_id, file.resourceType);
+    await deleteR2File(file.public_id);
   } catch (error) {
-    console.error(`Failed to delete Cloudinary file ${file.public_id}`, error);
+    console.error(`Failed to delete R2 file ${file.public_id}`, error);
   }
 
   await File.deleteOne({ _id: file._id });
