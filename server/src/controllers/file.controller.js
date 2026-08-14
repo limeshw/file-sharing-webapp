@@ -15,6 +15,8 @@ import {
   validatePasswordPayload,
   validatePrepareUploadPayload,
 } from "../validators/file.validator.js";
+import { File } from "../models/file.model.js";
+import { acquireUploadLock, releaseUploadLock } from "../utils/lock.util.js";
 
 // Presigned PUT URL TTL exposed to the frontend so it can show a deadline.
 const UPLOAD_URL_TTL = 300;
@@ -51,26 +53,41 @@ export const confirmUpload = asyncHandler(async (req, res) => {
 
   validateConfirmUploadPayload({ key, filename, mimeType, size: Number(size), expiry, password });
 
-  const { file, shareUrl } = await createFileRecordFromKey({
-    key,
-    filename,
-    mimeType,
-    size: Number(size),
-    expiry,
-    password,
-  });
+  const lockAcquired = await acquireUploadLock(key);
+  if (!lockAcquired) {
+    throw new AppError("This upload is already being processed.", HTTP_STATUS.CONFLICT);
+  }
 
-  sendSuccess(res, HTTP_STATUS.CREATED, "File uploaded successfully", {
-    uuid: file.uuid,
-    shareUrl,
-    downloadPageUrl: shareUrl,
-    downloadUrl: `${shareUrl.replace("/files/", "/files/download/")}`,
-    expiresAt: file.expiresAt,
-    hasPassword: file.hasPassword,
-    originalName: file.originalName,
-    size: file.size,
-    mimeType: file.mimeType,
-  });
+  try {
+    // Graceful degradation fallback check: prevent duplicates even if Redis is down
+    const existingFile = await File.findOne({ public_id: key });
+    if (existingFile) {
+      throw new AppError("File has already been confirmed.", HTTP_STATUS.CONFLICT);
+    }
+
+    const { file, shareUrl } = await createFileRecordFromKey({
+      key,
+      filename,
+      mimeType,
+      size: Number(size),
+      expiry,
+      password,
+    });
+
+    sendSuccess(res, HTTP_STATUS.CREATED, "File uploaded successfully", {
+      uuid: file.uuid,
+      shareUrl,
+      downloadPageUrl: shareUrl,
+      downloadUrl: `${shareUrl.replace("/files/", "/files/download/")}`,
+      expiresAt: file.expiresAt,
+      hasPassword: file.hasPassword,
+      originalName: file.originalName,
+      size: file.size,
+      mimeType: file.mimeType,
+    });
+  } finally {
+    await releaseUploadLock(key);
+  }
 });
 
 export const verifyPassword = asyncHandler(async (req, res) => {

@@ -10,6 +10,7 @@ import { buildShareUrl, formatBytes, resolveExpiryDate } from "../utils/file.uti
 import { createDownloadAccessKey, verifyDownloadAccessKey } from "../utils/token.util.js";
 import { deleteR2File } from "./r2.service.js";
 import { sendFileShareEmail } from "./email.service.js";
+import { getFileCache, setFileCache, invalidateFileCache } from "./cache.service.js";
 
 const SALT_ROUNDS = 10;
 
@@ -56,7 +57,16 @@ export const createFileRecordFromKey = async ({ key, filename, mimeType, size, e
 };
 
 export const getFileByUuid = async (uuid) => {
+  const cachedFile = await getFileCache(uuid);
+  if (cachedFile) {
+    return ensureActiveFile(cachedFile);
+  }
+
   const file = await File.findOne({ uuid });
+  if (file) {
+    await setFileCache(uuid, file.toObject());
+  }
+
   return ensureActiveFile(file);
 };
 
@@ -104,10 +114,19 @@ export const resolveDownload = async ({ uuid, accessKey }) => {
     );
   }
 
-  file.downloadCount += 1;
-  await file.save();
+  const updatedFile = await File.findOneAndUpdate(
+    { uuid },
+    { $inc: { downloadCount: 1 } },
+    { new: true }
+  );
 
-  return file;
+  if (!updatedFile) {
+    throw new AppError("File not found.", HTTP_STATUS.NOT_FOUND);
+  }
+
+  await invalidateFileCache(uuid);
+
+  return updatedFile;
 };
 
 export const resolvePreview = async ({ uuid, accessKey }) => {
@@ -128,21 +147,28 @@ export const sendShareEmail = async ({ uuid, emailTo, emailFrom }) => {
 
   const downloadLink = buildShareUrl(env.frontendBaseUrl, file.uuid);
 
-  // Update sender/receiver each time (allows re-sharing to different emails)
-  file.sender = emailFrom;
-  file.receiver = emailTo;
-  await file.save();
+  const updatedFile = await File.findOneAndUpdate(
+    { uuid },
+    { sender: emailFrom, receiver: emailTo },
+    { new: true }
+  );
+
+  if (!updatedFile) {
+    throw new AppError("File not found.", HTTP_STATUS.NOT_FOUND);
+  }
+
+  await invalidateFileCache(uuid);
 
   await sendFileShareEmail({
     to: emailTo,
     emailFrom,
-    fileName: file.originalName,
-    fileSize: formatBytes(file.size),
+    fileName: updatedFile.originalName,
+    fileSize: formatBytes(updatedFile.size),
     downloadLink,
-    expires: EXPIRY_LABELS[file.expiryOption] || "selected duration",
+    expires: EXPIRY_LABELS[updatedFile.expiryOption] || "selected duration",
   });
 
-  return file;
+  return updatedFile;
 };
 
 export const deleteExpiredFileRecord = async (file) => {
@@ -153,4 +179,5 @@ export const deleteExpiredFileRecord = async (file) => {
   }
 
   await File.deleteOne({ _id: file._id });
+  await invalidateFileCache(file.uuid);
 };

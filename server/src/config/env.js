@@ -60,6 +60,7 @@ export const env = {
     senderEmail: process.env.BREVO_SENDER_EMAIL,
     senderName: process.env.BREVO_SENDER_NAME || "Linkify",
   },
+  redisUrl: process.env.REDIS_URL || null,
   r2: {
     accountId: process.env.R2_ACCOUNT_ID,
     accessKeyId: process.env.R2_ACCESS_KEY_ID,

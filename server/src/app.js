@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { env } from "./config/env.js";
 import { connectToMongoDB } from "./config/db.js";
+import { connectToRedis } from "./config/redis.js";
 import { startCleanupCron } from "./cron/cleanup.cron.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/requestLogger.middleware.js";
@@ -65,6 +66,7 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectToMongoDB();
+    connectToRedis();
     try {
       await verifyEmailTransport();
     } catch (error) {
