@@ -8,9 +8,8 @@ import { File } from "../models/file.model.js";
 import { AppError } from "../utils/appError.js";
 import { buildShareUrl, formatBytes, resolveExpiryDate } from "../utils/file.util.js";
 import { createDownloadAccessKey, verifyDownloadAccessKey } from "../utils/token.util.js";
-import { deleteR2File } from "./r2.service.js";
-import { sendFileShareEmail } from "./email.service.js";
 import { getFileCache, setFileCache, invalidateFileCache } from "./cache.service.js";
+import { emailQueue } from "../queues/email.queue.js";
 
 const SALT_ROUNDS = 10;
 
@@ -159,25 +158,22 @@ export const sendShareEmail = async ({ uuid, emailTo, emailFrom }) => {
 
   await invalidateFileCache(uuid);
 
-  await sendFileShareEmail({
-    to: emailTo,
-    emailFrom,
-    fileName: updatedFile.originalName,
-    fileSize: formatBytes(updatedFile.size),
-    downloadLink,
-    expires: EXPIRY_LABELS[updatedFile.expiryOption] || "selected duration",
-  });
-
-  return updatedFile;
-};
-
-export const deleteExpiredFileRecord = async (file) => {
   try {
-    await deleteR2File(file.public_id);
+    await emailQueue.add("share-email", {
+      to: emailTo,
+      emailFrom,
+      fileName: updatedFile.originalName,
+      fileSize: formatBytes(updatedFile.size),
+      downloadLink,
+      expires: EXPIRY_LABELS[updatedFile.expiryOption] || "selected duration",
+    });
   } catch (error) {
-    console.error(`Failed to delete R2 file ${file.public_id}`, error);
+    console.error("Failed to queue email sharing job:", error);
+    throw new AppError(
+      "Email service temporarily unavailable. Please try again later.",
+      HTTP_STATUS.SERVICE_UNAVAILABLE
+    );
   }
 
-  await File.deleteOne({ _id: file._id });
-  await invalidateFileCache(file.uuid);
+  return updatedFile;
 };

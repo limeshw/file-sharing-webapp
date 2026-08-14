@@ -4,10 +4,11 @@ import express from "express";
 import helmet from "helmet";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import mongoose from "mongoose";
 
 import { env } from "./config/env.js";
 import { connectToMongoDB } from "./config/db.js";
-import { connectToRedis } from "./config/redis.js";
+import { connectToRedis, getRedisClient } from "./config/redis.js";
 import { startCleanupCron } from "./cron/cleanup.cron.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/requestLogger.middleware.js";
@@ -15,6 +16,7 @@ import fileRoutes from "./routes/file.routes.js";
 import viewRoutes from "./routes/view.routes.js";
 import { verifyEmailTransport } from "./services/email.service.js";
 import { AppError } from "./utils/appError.js";
+import { startAllWorkers, closeAllWorkers } from "./workers/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,6 +69,8 @@ const startServer = async () => {
   try {
     await connectToMongoDB();
     connectToRedis();
+    startAllWorkers();
+    
     try {
       await verifyEmailTransport();
     } catch (error) {
@@ -74,9 +78,50 @@ const startServer = async () => {
     }
     startCleanupCron();
 
-    app.listen(env.port, () => {
+    const server = app.listen(env.port, () => {
       console.log(`Server is running on http://${env.host}:${env.port}`);
     });
+
+    const shutdown = async (signal) => {
+      console.log(`\nReceived ${signal}. Starting graceful shutdown...`);
+
+      // 1. Stop accepting new HTTP connections
+      server.close(async () => {
+        console.log("HTTP server closed.");
+
+        try {
+          // 2. Close BullMQ workers (waits for active jobs to finish)
+          await closeAllWorkers();
+
+          // 3. Close general Redis client
+          const redisClient = getRedisClient();
+          if (redisClient) {
+            console.log("Disconnecting general Redis client...");
+            await redisClient.quit();
+          }
+
+          // 4. Close MongoDB/Mongoose connection
+          console.log("Disconnecting MongoDB...");
+          await mongoose.disconnect();
+          console.log("MongoDB disconnected.");
+
+          console.log("Graceful shutdown completed successfully.");
+          process.exit(0);
+        } catch (error) {
+          console.error("Error during graceful shutdown:", error);
+          process.exit(1);
+        }
+      });
+
+      // Force exit after a safety timeout (e.g. 20 seconds)
+      setTimeout(() => {
+        console.error("Force exiting: Graceful shutdown timed out.");
+        process.exit(1);
+      }, 20000);
+    };
+
+    process.on("SIGTERM", () => shutdown("SIGTERM"));
+    process.on("SIGINT", () => shutdown("SIGINT"));
   } catch (error) {
     console.error("Failed to start server", error);
     process.exit(1);

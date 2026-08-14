@@ -109,5 +109,5 @@ export const shareFileByEmail = asyncHandler(async (req, res) => {
 
   await sendShareEmail(req.body);
 
-  sendSuccess(res, HTTP_STATUS.OK, "Share email sent successfully");
+  sendSuccess(res, HTTP_STATUS.ACCEPTED, "Email queued successfully");
 });
