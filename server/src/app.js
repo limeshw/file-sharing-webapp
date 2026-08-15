@@ -56,6 +56,7 @@ app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Linkify backend is healthy",
+    timestamp: new Date().toISOString(),
   });
 });
 
