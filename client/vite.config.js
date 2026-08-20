@@ -18,6 +18,10 @@ export default defineConfig(({ mode }) => {
           target: backendTarget,
           changeOrigin: true,
         },
+        "^/files/preview/.*": {
+          target: backendTarget,
+          changeOrigin: true,
+        },
         "^/files/download/.*": {
           target: backendTarget,
           changeOrigin: true,

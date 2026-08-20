@@ -182,3 +182,37 @@
     @apply bg-gradient-to-r from-violet-400 via-purple-500 to-indigo-400 bg-clip-text text-transparent font-extrabold;
   }
 }
+
+/* Local File Preview System Styles */
+.react-pdf__Page__canvas {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+}
+
+.docx-wrapper {
+  background: transparent !important;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.docx-wrapper > section.docx {
+  background: white !important;
+  color: black !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  border-radius: 0.5rem !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 2rem !important;
+}
+
+.docx-wrapper > section.docx * {
+  color: inherit;
+}

@@ -71,7 +71,7 @@ const startServer = async () => {
     await connectToMongoDB();
     connectToRedis();
     startAllWorkers();
-    
+
     try {
       await verifyEmailTransport();
     } catch (error) {
