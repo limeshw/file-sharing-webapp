@@ -17,3 +17,7 @@ export const expiryQueue = new Queue("file-expiry", {
     },
   },
 });
+
+expiryQueue.on("error", (error) => {
+  console.error("Expiry queue connection error:", error);
+});

@@ -20,4 +20,8 @@ emailWorker.on("failed", (job, error) => {
   );
 });
 
+emailWorker.on("error", (error) => {
+  console.error("Email worker connection error:", error);
+});
+
 export default emailWorker;

@@ -45,4 +45,8 @@ expiryWorker.on("failed", (job, error) => {
   );
 });
 
+expiryWorker.on("error", (error) => {
+  console.error("Expiry worker connection error:", error);
+});
+
 export default expiryWorker;

@@ -17,3 +17,7 @@ export const emailQueue = new Queue("email", {
     },
   },
 });
+
+emailQueue.on("error", (error) => {
+  console.error("Email queue connection error:", error);
+});

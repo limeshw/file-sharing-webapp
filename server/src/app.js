@@ -71,12 +71,9 @@ const startServer = async () => {
     await connectToMongoDB();
     connectToRedis();
     startAllWorkers();
-
-    try {
-      await verifyEmailTransport();
-    } catch (error) {
-      console.error("Email provider verification failed. Continuing without blocking startup.", error);
-    }
+    verifyEmailTransport().catch((error) => {
+      console.error("Email provider verification failed:", error);
+    });
     startCleanupCron();
 
     const server = app.listen(env.port, () => {
