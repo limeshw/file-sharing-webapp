@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { getFileByUuid, resolveDownload, resolvePreview, buildFileViewModel } from "../services/file.service.js";
 import { validateUuid } from "../validators/file.validator.js";
 import { AppError } from "../utils/appError.js";
-import { getR2PresignedDownloadUrl, getR2PresignedPreviewUrl } from "../services/r2.service.js";
+import { getR2PresignedDownloadUrl, getR2FileStream } from "../services/r2.service.js";
 
 export const showFilePage = asyncHandler(async (req, res) => {
   try {
@@ -60,7 +60,18 @@ export const previewFile = asyncHandler(async (req, res) => {
     accessKey: req.query.accessKey,
   });
 
-  const presignedUrl = await getR2PresignedPreviewUrl(file.public_id);
+  try {
+    const { stream, contentType, contentLength } = await getR2FileStream(file.public_id);
 
-  res.redirect(presignedUrl);
+    if (contentType) {
+      res.setHeader("Content-Type", contentType);
+    }
+    if (contentLength) {
+      res.setHeader("Content-Length", contentLength);
+    }
+
+    stream.pipe(res);
+  } catch (error) {
+    throw new AppError("Failed to retrieve preview from storage.", HTTP_STATUS.INTERNAL_SERVER_ERROR);
+  }
 });

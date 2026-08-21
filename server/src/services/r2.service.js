@@ -69,3 +69,21 @@ export const getR2PresignedPreviewUrl = async (key) => {
 
   return getSignedUrl(r2Client, command, { expiresIn: PRESIGNED_URL_TTL });
 };
+
+/**
+ * Retrieves an object's readable stream and headers from R2.
+ */
+export const getR2FileStream = async (key) => {
+  const command = new GetObjectCommand({
+    Bucket: env.r2.bucketName,
+    Key: key,
+  });
+
+  const response = await r2Client.send(command);
+  return {
+    stream: response.Body,
+    contentType: response.ContentType,
+    contentLength: response.ContentLength,
+  };
+};
+
